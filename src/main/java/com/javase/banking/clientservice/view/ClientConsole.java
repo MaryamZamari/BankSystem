@@ -2,6 +2,7 @@ package com.javase.banking.clientservice.view;
 
 import com.javase.banking.clientservice.dto.ClientDto;
 import com.javase.banking.clientservice.clientfacade.ClientFacade;
+import com.javase.banking.clientservice.model.Client;
 import com.javase.banking.clientservice.model.ClientType;
 import com.javase.banking.shared.model.DocFile;
 import com.javase.banking.shared.model.FileType;
@@ -14,25 +15,33 @@ import java.util.function.Function;
 
 public class ClientConsole {
     //menu + get details from user for various operations needed in the service classes.
+    private static final ClientConsole INSTANCE;
     private final ScannerWrapperUtil scannerWrapper;
     private final ClientFacade clientFacade= ClientFacade.getInstance();
-    public ClientConsole(){
+    private ClientConsole(){
         scannerWrapper= ScannerWrapperUtil.getInstance();
+    }
+    static{
+        INSTANCE= new ClientConsole();
+    }
+    public static ClientConsole getInstance() {
+        return INSTANCE;
     }
 
     public void printClientMenu() {
         System.out.println();
         System.out.println("Welcome to Client Management Portal! \n" +
-                "--- select a menu item: --- \n" +
-                "0.Exit\n" +
+                "--- select a menu item: --- \n" +  //TODO: check in controller and fix it.
+                "0.Back to Bank menu \n" +
                 "1.Add a new client.\n" +
                 "2.Search a client \n" +
                 "3.Edit a client\n" +
                 "4.Removing a client \n" +
                 "5.Printing all the Clients.\n" +
-                "6.Print all accounts of the client" +
-                "7.Save data.\n" +
-                "8.Load data.\n"  //TODO : CHECK the load data and see how to make it in a way that returning the clients would check the file first.
+                "6.Print all the deleted clients" +
+                "7.Print all accounts of the client" +
+                "8.Save data.\n" +
+                "9.Load data.\n"
         );
     }
 

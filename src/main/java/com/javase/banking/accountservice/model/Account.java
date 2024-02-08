@@ -19,17 +19,17 @@ public class Account implements Serializable {
     private String accountNumber;
     private AccountType type;
     private BigDecimal balance;
-    private Integer customerId;
+    private Integer clientId;
     private Boolean deleted;
 
     public Account(Integer id, String name, String accountNumber, AccountType type,
-                   BigInteger balance, Integer customerId, Boolean deleted) {
+                   BigInteger balance, Integer clientId, Boolean deleted) {
         Id = IdGeneratorUtil.generateUniqueAccountId();
         this.name= name;
         this.accountNumber = accountNumber;
         this.type = type;
         this.balance = BigDecimal.ZERO;
-        this.customerId = customerId;
+        this.clientId = clientId;
         this.deleted = false;
     }
     @Override

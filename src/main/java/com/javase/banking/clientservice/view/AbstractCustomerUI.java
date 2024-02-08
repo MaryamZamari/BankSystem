@@ -7,9 +7,10 @@ import java.util.function.Function;
 
 public abstract class AbstractCustomerUI {
     static ScannerWrapperUtil scannerWrapper;
-    private ClientConsole console = new ClientConsole();
+    private final ClientConsole console;
     public AbstractCustomerUI(ScannerWrapperUtil scannerWrapper){
         this.scannerWrapper= ScannerWrapperUtil.getInstance();
+        console= ClientConsole.getInstance();
     }
     public abstract void editClient(ClientDto oldClient);
     public static AbstractCustomerUI createCustomerUI(ClientType type){

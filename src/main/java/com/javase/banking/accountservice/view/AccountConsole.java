@@ -1,81 +1,76 @@
 package com.javase.banking.accountservice.view;
 
-import com.javase.banking.clientservice.dto.ClientDto;
+import com.javase.banking.accountservice.dto.AccountDto;
+import com.javase.banking.accountservice.model.AccountType;
 import com.javase.banking.clientservice.clientfacade.ClientFacade;
 import com.javase.banking.shared.model.DocFile;
 import com.javase.banking.shared.model.FileType;
-import com.javase.banking.clientservice.model.ClientType;
-import com.javase.banking.shared.exception.ValidationException;
+import com.javase.banking.shared.utility.IdGeneratorUtil;
 import com.javase.banking.shared.utility.ScannerWrapperUtil;
-import com.javase.banking.clientservice.view.AbstractCustomerUI;
-
+import java.math.BigDecimal;
 import java.security.InvalidParameterException;
 import java.text.ParseException;
 import java.util.function.Function;
 
 public class AccountConsole {
-    //menu + get details from user for various operations needed in the service classes.
+    private static final AccountConsole INSTANCE;
     private final ScannerWrapperUtil scannerWrapper;
     private final ClientFacade clientFacade= ClientFacade.getInstance();
-    public AccountConsole(){
+    private AccountConsole(){
         scannerWrapper= ScannerWrapperUtil.getInstance();
     }
+    static{
+        INSTANCE= new AccountConsole();
+    }
+    public static AccountConsole getInstance() {
+        return INSTANCE;
+    }
 
-    public void printMenu() {
+    public void printAccountMenu() {
         System.out.println();
-        System.out.println("Welcome to ClientDto Management Portal! \n" +
+        System.out.println("Welcome to Account Management Portal! \n" +
                 "--- select a menu item: --- \n" +
                 "0.Exit\n" +
-                "1.Add a new client.\n" +
-                "2.Search a client \n" +
-                "3.Edit a client\n" +
-                "4.Removing a client \n" +
-                "5.Printing all the Clients.\n" +
-                "6.Save data.\n" +
-                "7.Load data.\n"
+                "1.Add a new account.\n" +
+                "2.Search an account \n" +
+                "3.Edit an account \n" +
+                "4.Remove an account  \n" +
+                "5.Printing all the accounts.\n" +
+                "6.Printing all the deleted accounts.\n" +
+                "7.Save data.\n" +
+                "8.Load data.\n" +
+                "9.Add data.\n"
         );
     }
 
 
-    public ClientDto getClientDetailsFromUser() throws ParseException {
-        ClientDto newClient = null;
-        AbstractCustomerUI customerUI = null;
-        char clientType= scannerWrapper.getUserInput("what type of client? " +
-                                                                "P: Personal,  " +
-                                                                "B: Business. ", x -> x.toUpperCase().charAt(0));
+    public AccountDto getAccountDetailsFromUser() throws ParseException {
+        AccountDto newAccount = null;
+        char accountType = scannerWrapper.getUserInput("what type of client? " +
+                                                                "E: Euro,  " +
+                                                                "D: Dollar. ", x -> x.toUpperCase().charAt(0));
         scannerWrapper.clearExcessiveInput();
-        ClientType type = switch(clientType){
-            case 'P' -> ClientType.P;
-            case 'B' -> ClientType.B;
-            default -> throw new IllegalStateException("Unexpected value: " + clientType);
+        AccountType type = switch(accountType){
+            case 'E' -> AccountType.EURO;
+            case 'D' -> AccountType.DOLLAR;
+            default -> throw new IllegalStateException("Unexpected value: " + accountType);
         };
-        newClient= AbstractCustomerUI.createCustomerUI(type).generateCustomer(type);
-        return newClient;
+        String name= scannerWrapper.getUserInput("enter account name: ", Function.identity());
+        String number = scannerWrapper.getUserInput("enter account number: ", Function.identity());
+        BigDecimal balance= scannerWrapper.getUserInput("Enter balance: ", BigDecimal::new);
+        int clientId= scannerWrapper.getUserInput("Enter client id: ", Integer::valueOf);
+        newAccount= new AccountDto(IdGeneratorUtil.generateUniqueAccountId(), name, number, type, balance, clientId);
+        return newAccount;
     }
 
-    public ClientDto getClientInfoFromUserForEdit(ClientDto oldClient) throws ValidationException {
-        String name= scannerWrapper.getUserInput("Enter new Name: " , Function.identity());
-        String email= scannerWrapper.getUserInput("Enter new Email: ", Function.identity());
-        String address= scannerWrapper.getUserInput("Enter new Address: ", Function.identity());
-
-        oldClient.setName(name);
-        oldClient.setEmail(email);
-        oldClient.setAddress(address);
-        AbstractCustomerUI
-                    .createCustomerUI(oldClient.getType())
-                    .editClient(oldClient);
-        clientFacade.updateClient(oldClient.getId(), oldClient);
-        return oldClient;
-    }
-
-    public int getIdFromUser (){
+       public int getIdFromUser (){
         int id= scannerWrapper.getUserInput("enter Id: " , Integer::valueOf);
         return id;
     }
-    public Object getClientDetailForSelection() throws InvalidParameterException {
+    public Object getAccountDetailForSelection() throws InvalidParameterException {
         char choice=
-            scannerWrapper.getUserInput("How do you want to search for the client? \n" +
-                                        "N.Name\n"+
+            scannerWrapper.getUserInput("How do you want to search for the account? \n" +
+                                        "N.Account Number \n"+
                                         "I.Id\n", x -> x.charAt(0));
         scannerWrapper.clearExcessiveInput();
         if(choice == 'N'){
@@ -89,11 +84,7 @@ public class AccountConsole {
         }
 
     }
-    public String getNewNumberToUpdate(){
-       return scannerWrapper.getUserInput("enter new number: \n", Function.identity());
-    }
-
-    public DocFile getFileTypeFromUser(){
+       public DocFile getFileTypeFromUser(){
         DocFile file;
         char type = scannerWrapper.getUserInput("what type of File? " +
                 "S: Serialised,  " +
@@ -118,6 +109,11 @@ public class AccountConsole {
     public void addData() {
         String fileName= scannerWrapper.getUserInput("Enter the name of the JSON file: ", Function.identity());
         clientFacade.addData(fileName);
+    }
+
+    public AccountDto getAccountDetailsFromUserForEdit(AccountDto oldAccount) {
+        //TODO: implement getAccountDetailsFromUserForEdit
+        return null;
     }
 }
 

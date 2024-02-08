@@ -5,7 +5,6 @@ import com.javase.banking.accountservice.exception.DuplicateAccountException;
 import com.javase.banking.accountservice.exception.EmptyAccountException;
 import com.javase.banking.accountservice.exception.AccountNotFoundException;
 import com.javase.banking.shared.exception.ValidationException;
-
 import java.util.List;
 
 public interface IAccountFacade {
@@ -16,4 +15,5 @@ public interface IAccountFacade {
     List<AccountDto> getAllActiveAccounts() throws EmptyAccountException;
     List<AccountDto> getAllDeletedAccounts() throws EmptyAccountException;
 
+    void initData();
 }

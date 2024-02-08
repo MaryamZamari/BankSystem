@@ -9,6 +9,7 @@ import com.javase.banking.accountservice.model.Account;
 import com.javase.banking.accountservice.service.AccountService;
 import com.javase.banking.accountservice.service.IAccountService;
 import com.javase.banking.accountservice.exception.AccountNotFoundException;
+import com.javase.banking.clientservice.mapper.IClientMapStruct;
 import com.javase.banking.shared.exception.ValidationException;
 import org.mapstruct.factory.Mappers;
 import java.util.List;
@@ -20,7 +21,7 @@ public class AccountFacade implements IAccountFacade {
     private IAccountMapStruct mapStruct;
     private AccountFacade(){
         accountService= AccountService.getInstance();
-        mapStruct= Mappers.getMapper(mapStruct.getClass());
+        mapStruct= Mappers.getMapper(IAccountMapStruct.class);
         accountValidation= new AccountValidationContext();
     }
     static{
@@ -60,6 +61,11 @@ public class AccountFacade implements IAccountFacade {
     @Override
     public List<AccountDto> getAllDeletedAccounts() throws EmptyAccountException {
         return mapStruct.mapToAccountDtoList(accountService.getAllDeletedAccounts());
+    }
+
+    @Override
+    public void initData() {
+        //TODO: implement initData in AccoundFacade.
     }
 
 

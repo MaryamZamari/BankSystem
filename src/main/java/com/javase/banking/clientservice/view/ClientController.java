@@ -8,7 +8,6 @@ import com.javase.banking.shared.model.FileType;
 import com.javase.banking.clientservice.clientexception.DuplicateClientException;
 import com.javase.banking.shared.exception.FileException;
 import com.javase.banking.shared.exception.ValidationException;
-
 import java.io.FileNotFoundException;
 import java.security.InvalidParameterException;
 import java.text.ParseException;
@@ -24,9 +23,19 @@ import static java.lang.Integer.parseInt;
  *
  */
 public class ClientController{
-    private static final IClientFacade clientFacade= ClientFacade.getInstance();
-    private static final ClientConsole view = new ClientConsole();
-    private static AbstractCustomerUI view1;
+    private final IClientFacade clientFacade;
+    private final ClientConsole view;
+    private static final ClientController INSTANCE;
+    private ClientController(){
+        clientFacade = ClientFacade.getInstance();
+        view = ClientConsole.getInstance();
+    }
+    static{
+        INSTANCE= new ClientController();
+    }
+    public static ClientController getInstance() {
+        return INSTANCE;
+    }
 
     public void run(){
         clientFacade.initData();
@@ -124,8 +133,8 @@ public class ClientController{
             clientFacade.addClient(client);
         }
     }
-    public static ClientDto searchClient(Object clientDetailToSearch) {
-        return clientFacade.getClient(clientDetailToSearch);
+    public ClientDto searchClient(Object clientDetailToSearch) {
+       return clientFacade.getClient(clientDetailToSearch);
     }
 
     public void deleteClient(int id){

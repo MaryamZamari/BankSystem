@@ -9,7 +9,6 @@ import com.javase.banking.accountservice.exception.AccountNotFoundException;
 import com.javase.banking.shared.model.DocFile;
 import com.javase.banking.shared.model.FileType;
 import com.javase.banking.shared.utility.MapperWrapper;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
