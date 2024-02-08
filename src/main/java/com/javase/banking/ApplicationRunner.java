@@ -1,6 +1,6 @@
 package com.javase.banking;
 
-import com.javase.banking.view.component.client.ClientController;
+import com.javase.banking.clientservice.view.ClientController;
 
 public class ApplicationRunner {
     private static final ClientController controller= new ClientController();
