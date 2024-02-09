@@ -13,12 +13,12 @@ public final class IdGeneratorUtil {
 
     private static AtomicInteger clientIdCounter = new AtomicInteger(1);
     private static AtomicInteger accountIdCounter = new AtomicInteger(1);
-
+    private static AtomicInteger transactionIdCounter = new AtomicInteger(1);
     public static int generateUniqueClientId() {
         return clientIdCounter.getAndIncrement();
     }
     public static int generateUniqueAccountId() {
-        return clientIdCounter.getAndIncrement();
+        return accountIdCounter.getAndIncrement();
     }
-
+    public static int generateUniqueTransactionId() { return transactionIdCounter.getAndIncrement(); }
 }

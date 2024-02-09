@@ -5,6 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javase.banking.accountservice.dto.AccountDto;
 import com.javase.banking.accountservice.exception.DuplicateAccountException;
 import com.javase.banking.accountservice.model.Account;
+import com.javase.banking.accountservice.model.AccountType;
+import com.javase.banking.conversionservice.ConversionRateCalculatorUtil;
+import com.javase.banking.conversionservice.exception.ConversionNotSupportedException;
+import com.javase.banking.conversionservice.exception.ConversionRateNotFoundException;
+import com.javase.banking.conversionservice.model.*;
+import com.javase.banking.conversionservice.service.ConversionService;
+import com.javase.banking.conversionservice.service.TransactionLogger;
 import com.javase.banking.shared.exception.FileException;
 import com.javase.banking.accountservice.exception.AccountNotFoundException;
 import com.javase.banking.shared.exception.ValidationException;
@@ -20,11 +27,15 @@ import java.util.stream.Collectors;
 
 public class AccountService implements IAccountService{
     private static final AccountService INSTANCE;
+    private final TransactionLogger transactionLogger;
+    private final ConversionService conversionService;
     private final ObjectMapper objectMapper;
     private static List<Account> accountList;
     private AccountService(){
         accountList= new ArrayList<>();
+        conversionService = ConversionService.getInstance();
         objectMapper= MapperWrapper.getInstance();
+        transactionLogger = TransactionLogger.getInstance();
     }
     static{
         INSTANCE= new AccountService();
@@ -185,13 +196,54 @@ public class AccountService implements IAccountService{
     public void withdraw(int accountId, BigDecimal amount) throws AccountNotFoundException , ValidationException {
         Account account = getAccountById(accountId);
         BigDecimal balance = account.getBalance();
-        boolean hasEnoughBalance = (balance.compareTo(BigDecimal.ZERO) > 0) &&
-                                    (balance.compareTo(amount) >= 0);
-        if(hasEnoughBalance){
+        boolean hasBalance = hasEnoughBalance(amount, balance);
+        if(hasBalance){
             account.getBalance().subtract(amount);
         }else{
             throw new ValidationException("Balance is not enough");
         }
+    }
+
+    private static boolean hasEnoughBalance(BigDecimal amount, BigDecimal balance) {
+        return (balance.compareTo(BigDecimal.ZERO) > 0) &&
+                (balance.compareTo(amount) >= 0);
+    }
+
+    @Override
+    public void transfer(int sourceAccountId, int desAccountId, BigDecimal amount) throws AccountNotFoundException, ValidationException {
+        try {
+            Account sourceAccount = getAccountById(sourceAccountId);
+            Account destAccount = getAccountById(desAccountId);
+            AccountType sourceType = sourceAccount.getType();
+            AccountType destType = destAccount.getType();
+            TransactionIdPair idPair = new TransactionIdPair(sourceAccountId , desAccountId);
+            CurrencyPair currencyPair = new CurrencyPair(
+                    CurrencyType.valueOf(sourceType.name()) ,
+                    CurrencyType.valueOf(destType.name())
+            );
+            Transaction transaction = conversionService.createTransaction(idPair , currencyPair , amount);
+            transactionLogger.logTransaction(transaction);
+            if(!sourceType.equals(destType)){
+                System.out.println("This operation needs Currency Conversion and will cost some service fee");
+                ConversionRate rate =ConversionRateCalculatorUtil.pickConversionRate(currencyPair);
+                conversionService.convert(transaction);
+            }
+            BigDecimal sourceBalance = sourceAccount.getBalance();
+            boolean hasBalance = hasEnoughBalance(amount, sourceBalance);
+            if (hasBalance) {
+                sourceAccount.getBalance().subtract(amount);
+                destAccount.getBalance().add(amount);
+            } else {
+                throw new ValidationException("Balance is not enough");
+            }
+        }catch (ConversionNotSupportedException e) {
+            throw new RuntimeException("Conversion is not possible for the currencies");
+        }catch(Exception e){
+        } catch (ConversionRateNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 
 }

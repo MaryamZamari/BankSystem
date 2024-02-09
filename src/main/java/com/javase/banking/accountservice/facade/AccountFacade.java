@@ -119,8 +119,7 @@ public class AccountFacade implements IAccountFacade {
     @Override
     public void transfer(int sourceAccountId, int desAccountId, BigDecimal amount) throws AccountNotFoundException, ValidationException, TransactionUnsuccessfulException {
         try{
-            withdraw(sourceAccountId , amount);
-            deposit(desAccountId , amount);
+            accountService.transfer(sourceAccountId, desAccountId, amount);
         }catch(Exception exception){
             throw new TransactionUnsuccessfulException();
         }

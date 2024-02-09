@@ -28,4 +28,5 @@ public interface IAccountService {
     List<Account> getAccountByClientId(Integer id) ;
     void deposit(int accountId, BigDecimal amount) throws AccountNotFoundException;
     void withdraw(int accountId, BigDecimal amount) throws AccountNotFoundException, ValidationException;
+    void transfer(int sourceAccountId, int desAccountId, BigDecimal amount) throws AccountNotFoundException, ValidationException;
 }

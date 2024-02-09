@@ -1,19 +1,24 @@
 package com.javase.banking.conversionservice.model;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.javase.banking.shared.utility.IdGeneratorUtil;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Getter
-@Setter
 @ToString
+@AllArgsConstructor
 public class Transaction {
+    private Integer id = IdGeneratorUtil.generateUniqueTransactionId();
+    private TransactionIdPair idPair;
     private CurrencyPair currencyPair;
     private ConversionRate conversionRate;
-    private Date timeStamp;
+    private LocalDateTime timeStamp;
     private BigDecimal amount;
+
 
 
 
