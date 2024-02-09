@@ -41,6 +41,7 @@ public class ClientService implements IClientService {
     public static List<Client> getClientList() {
         return clientList;
     }
+    @Override
     public void addClient(Client client) throws DuplicateClientException {
         Optional<Client> duplicateClient = clientList.stream()
                                             .filter(isDuplicate(client)).findFirst();
@@ -68,7 +69,7 @@ public class ClientService implements IClientService {
         return client instanceof PersonalClient &&
                 x.getSurname().equals(((PersonalClient) client).getSurname());
     }
-
+    @Override
     public <T> Client getClient(T clientDetail) {
         Client selectedClient = null;
         if (clientDetail instanceof Integer) {
@@ -79,7 +80,7 @@ public class ClientService implements IClientService {
         System.out.println("The searched client is: " + selectedClient.toString());
         return selectedClient;
     }
-
+    @Override
     public Client getClientById(int clientId) {
         Stream<Client> client = getClientList().stream()
                 .filter((x) -> x.isDeleted() == false)
@@ -87,7 +88,7 @@ public class ClientService implements IClientService {
         return client.findFirst().orElseThrow(() ->
                 new NoSuchElementException("there is no client with the Id " + clientId));
     }
-
+    @Override
     public Client getClientByName(String clientName) {
         Optional<Client> optionalClient = getClientList().stream()
                 .filter((x) -> x.isDeleted() == false)
@@ -95,7 +96,7 @@ public class ClientService implements IClientService {
         return optionalClient.orElseThrow(() ->
                 new NoSuchElementException("there is no client with the Name " + clientName));
     }
-
+    @Override
     public void updateClientList(int clientId, Client newClient) {
         Client c = getClientList().stream()
                         .filter((x) -> x.isDeleted() == false)
@@ -107,13 +108,13 @@ public class ClientService implements IClientService {
         getClientList().set(index, newClient);
         System.out.println("Modification was done! The updated client is: " + c.toString());
     }
-
+    @Override
     public void deleteClientById(int cliendId) {
         Client clientToDelete = getClientById(cliendId);
         clientToDelete.setDeleted(true);
         System.out.println("ClientDto removed successfully! The updated list is: " + getClientList().toString());
     }
-
+    @Override
     public void printAllClients() {
       List<Client> allClients=  getClientList().stream()
                                     .filter(x -> !x.isDeleted())
@@ -126,6 +127,13 @@ public class ClientService implements IClientService {
                 throw new RuntimeException("Error on printing the customer with ID " + client.getId());
             }
         }
+    }
+    @Override
+    public List<Client> getAllClients() {
+        List<Client> allClients=  getClientList().stream()
+                .filter(x -> !x.isDeleted())
+                .collect(Collectors.toList());
+        return allClients;
     }
 
     @Override

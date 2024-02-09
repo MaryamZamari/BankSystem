@@ -7,6 +7,7 @@ import com.javase.banking.clientservice.clientexception.DuplicateClientException
 import com.javase.banking.shared.exception.FileException;
 import com.javase.banking.shared.exception.ValidationException;
 import java.io.FileNotFoundException;
+import java.util.List;
 
 public interface IClientService {
     void addClient(Client client) throws DuplicateClientException, ValidationException;
@@ -21,6 +22,6 @@ public interface IClientService {
     void initData();
     void saveOnExit() throws FileException;
     void addData(String name) throws FileNotFoundException;
-
+    List<Client> getAllClients();
     void loadData(DocFile file) throws FileNotFoundException;
 }

@@ -1,25 +1,20 @@
 package com.javase.banking.clientservice.view;
 
 import com.javase.banking.clientservice.dto.ClientDto;
-import com.javase.banking.clientservice.clientfacade.ClientFacade;
-import com.javase.banking.clientservice.model.Client;
 import com.javase.banking.clientservice.model.ClientType;
 import com.javase.banking.shared.model.DocFile;
 import com.javase.banking.shared.model.FileType;
 import com.javase.banking.shared.exception.ValidationException;
-import com.javase.banking.shared.utility.ScannerWrapperUtil;
-
+import com.javase.banking.shared.view.BaseConsole;
 import java.security.InvalidParameterException;
 import java.text.ParseException;
 import java.util.function.Function;
 
-public class ClientConsole {
+public class ClientConsole extends BaseConsole {
     //menu + get details from user for various operations needed in the service classes.
     private static final ClientConsole INSTANCE;
-    private final ScannerWrapperUtil scannerWrapper;
-    private final ClientFacade clientFacade= ClientFacade.getInstance();
     private ClientConsole(){
-        scannerWrapper= ScannerWrapperUtil.getInstance();
+        super();
     }
     static{
         INSTANCE= new ClientConsole();
@@ -131,6 +126,10 @@ public class ClientConsole {
         String fileName= scannerWrapper
                         .getUserInput("Enter the name of the JSON file: ", Function.identity());
         clientFacade.addData(fileName);
+    }
+
+    public void saveOnExit(){
+        clientFacade.saveOnExit();
     }
 }
 

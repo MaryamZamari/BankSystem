@@ -1,5 +1,6 @@
 package com.javase.banking.clientservice.clientfacade;
 
+import com.javase.banking.clientservice.clientexception.ClientNotFoundException;
 import com.javase.banking.clientservice.dto.ClientDto;
 import com.javase.banking.clientservice.clientvalidation.ClientValidationContext;
 import com.javase.banking.shared.validation.ValidationContext;
@@ -42,20 +43,20 @@ public class ClientFacade implements IClientFacade {
     }
 
     @Override
-    public <T> ClientDto getClient(T clientDetail) {
+    public <T> ClientDto getClient(T clientDetail) throws ClientNotFoundException {
         return
                 clientMapStruct
                         .maptoClientDto(clientService.getClient(clientDetail));
     }
 
     @Override
-    public ClientDto getClientById(int clientId) {
+    public ClientDto getClientById(int clientId) throws ClientNotFoundException{
         return clientMapStruct
                 .maptoClientDto(clientService.getClientById(clientId));
     }
 
     @Override
-    public ClientDto getClientByName(String clientName) {
+    public ClientDto getClientByName(String clientName) throws ClientNotFoundException{
         return clientMapStruct
                 .maptoClientDto(clientService.getClientByName(clientName));
     }

@@ -1,11 +1,18 @@
 package com.javase.banking.accountservice.view;
 
-import com.javase.banking.accountservice.accountfacade.AccountFacade;
-import com.javase.banking.accountservice.accountfacade.IAccountFacade;
+import com.javase.banking.accountservice.exception.TransactionUnsuccessfulException;
+import com.javase.banking.accountservice.facade.AccountFacade;
+import com.javase.banking.accountservice.facade.IAccountFacade;
 import com.javase.banking.accountservice.dto.AccountDto;
 import com.javase.banking.accountservice.exception.AccountNotFoundException;
+import com.javase.banking.accountservice.exception.DuplicateAccountException;
+import com.javase.banking.accountservice.exception.EmptyAccountException;
+import com.javase.banking.clientservice.clientexception.ClientNotFoundException;
+import com.javase.banking.shared.exception.ValidationException;
 import com.javase.banking.shared.model.DocFile;
 import com.javase.banking.shared.model.FileType;
+
+import javax.xml.transform.TransformerConfigurationException;
 import java.security.InvalidParameterException;
 import java.util.Scanner;
 import static java.lang.Integer.parseInt;
@@ -25,7 +32,7 @@ public class AccountController {
         return INSTANCE;
     }
 
-    public void run() {
+    public void run() throws TransactionUnsuccessfulException {
         accountFacade.initData();
         Runtime.getRuntime().addShutdownHook(new Thread(this::saveOnExit));
         try(Scanner input= new Scanner(System.in)) {
@@ -46,13 +53,13 @@ public class AccountController {
                         } catch (InvalidParameterException exception) {
                             System.out.println("you typed the wrong characters. revise your choice to select the client!");
                         }
-                        searchClient(accountDetailToSearch);
+                        searchAccount(accountDetailToSearch);
                         break;
                     case 3:
                         int accountId = view.getIdFromUser();
                         AccountDto oldAccount = accountFacade.getAccountById(accountId);
                         AccountDto updatedAccount = view.getAccountDetailsFromUserForEdit(oldAccount);
-                        updateAccount(accountId, updatedAccount);
+                        updateAccount(updatedAccount);
                         break;
                     case 4:
                         accountId = view.getIdFromUser();
@@ -65,54 +72,84 @@ public class AccountController {
                         printAllDeletedAccounts();
                         break;
                     case 7:
-                        DocFile file = view.getFileTypeFromUser();
-                        saveData(file);
-                        break;
+                        view.searchAccountByClientName();
                     case 8:
-                        file = view.getFileTypeFromUser();
-                        loadData(file.getType());
+                        DocFile file = view.getFileTypeFromUser();
+                        saveAccountData(file);
                         break;
                     case 9:
+                        file = view.getFileTypeFromUser();
+                        loadAccountData(file.getType());
+                        break;
+                    case 10:
                         view.addData();
+                    case 11:
+                        deposit();
+                        break;
+                    case 12:
+                        withdraw();
+                    case 13:
+                        transfer();
                     default:
                         if (choice != 0) {
                             System.out.println("the selected number is invalid. try again!");
                         }
                 }
             } while (choice != 0);
+        } catch (AccountNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (TransactionUnsuccessfulException e) {
+            throw new TransactionUnsuccessfulException("Transaction was not successful!");
+        } catch (ClientNotFoundException e) {
+            throw new RuntimeException("There is no client with this Id");
         }catch(Exception e){
             System.out.println("error in Account Controller");
-             } catch (AccountNotFoundException e) {
-            throw new RuntimeException(e);
         }
     }
 
-    private void printAllDeletedAccounts() {
+    private void withdraw() throws ValidationException, AccountNotFoundException {
+        view.withdraw();
     }
 
-    //TODO: implement these methods
-    private void printAllAccounts() {
+    private void transfer() throws ValidationException, AccountNotFoundException, TransactionUnsuccessfulException {
+        view.transfer();
     }
 
-    private void deleteAccount(int accountId) {
+    private void deposit() throws AccountNotFoundException {
+        view.deposit();
+    }
+    private void searchAccount(Object accountDetailToSearch) throws AccountNotFoundException {
+        accountFacade.getAccountByDetails(accountDetailToSearch); //TODO: check how you did it for client?
     }
 
-    private void saveData(DocFile file) {
+    private void printAllDeletedAccounts() throws EmptyAccountException {
+        accountFacade.getAllDeletedAccounts();
     }
 
-    private void loadData(FileType type) {
+    private void printAllAccounts() throws EmptyAccountException {
+        accountFacade.getAllActiveAccounts();
     }
 
-    private void updateAccount(int accountId, AccountDto updatedAccount) {
-
+    private void deleteAccount(int accountId) throws AccountNotFoundException {
+        accountFacade.deleteAccount(accountId);
+    }
+    private void saveAccountData(DocFile file) {
+        accountFacade.saveAccountData(file);
     }
 
-    private void searchClient(Object clientDetailToSearch) {
+    private void loadAccountData(FileType type) {
+        accountFacade.loadAccountData(type);
+    }
+    public void saveOnExit() {
+    }
+    public void initData() {
+    }
+    private void updateAccount(AccountDto updatedAccount) throws ValidationException, AccountNotFoundException {
+        accountFacade.updateAccount(updatedAccount);
+    }
+    private void addAccount(AccountDto newAccount) throws DuplicateAccountException, ClientNotFoundException {
+        accountFacade.addAccount(newAccount);
     }
 
-    private void saveOnExit() {
-    }
 
-    private void addAccount(AccountDto newAccount) {
-    }
 }

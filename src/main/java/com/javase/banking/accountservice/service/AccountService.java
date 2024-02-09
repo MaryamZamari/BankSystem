@@ -2,14 +2,17 @@ package com.javase.banking.accountservice.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.javase.banking.accountservice.dto.AccountDto;
 import com.javase.banking.accountservice.exception.DuplicateAccountException;
 import com.javase.banking.accountservice.model.Account;
 import com.javase.banking.shared.exception.FileException;
 import com.javase.banking.accountservice.exception.AccountNotFoundException;
+import com.javase.banking.shared.exception.ValidationException;
 import com.javase.banking.shared.model.DocFile;
 import com.javase.banking.shared.model.FileType;
 import com.javase.banking.shared.utility.MapperWrapper;
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +36,21 @@ public class AccountService implements IAccountService{
     @Override
     public void addAccount(Account account) throws DuplicateAccountException {
         accountList.add(account);
+    }
+
+    @Override
+    public <T> AccountDto getAccountByDetail(T accountDetail) throws AccountNotFoundException {
+        return null; //TODO: implement later
+    }
+
+    @Override
+    public List<Account> getAccountByClientId(Integer id){
+        List<Account> accounts =  accountList.stream()
+                .filter(account -> !account.getDeleted())
+                .filter(account -> account.getClientId().equals(id))
+                .collect(Collectors.toList());
+
+        return accounts;
     }
 
     @Override
@@ -154,6 +172,25 @@ public class AccountService implements IAccountService{
             throw new RuntimeException(e);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void deposit(int accountId, BigDecimal amount) throws AccountNotFoundException {
+        Account account = getAccountById(accountId);
+        account.getBalance().add(amount);
+    }
+
+    @Override
+    public void withdraw(int accountId, BigDecimal amount) throws AccountNotFoundException , ValidationException {
+        Account account = getAccountById(accountId);
+        BigDecimal balance = account.getBalance();
+        boolean hasEnoughBalance = (balance.compareTo(BigDecimal.ZERO) > 0) &&
+                                    (balance.compareTo(amount) >= 0);
+        if(hasEnoughBalance){
+            account.getBalance().subtract(amount);
+        }else{
+            throw new ValidationException("Balance is not enough");
         }
     }
 

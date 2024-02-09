@@ -1,4 +1,4 @@
-package com.javase.banking.accountservice.accountvalidation;
+package com.javase.banking.accountservice.validation;
 
 import com.javase.banking.accountservice.dto.AccountDto;
 import com.javase.banking.shared.validation.IValidation;

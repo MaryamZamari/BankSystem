@@ -1,5 +1,6 @@
 package com.javase.banking.clientservice.view;
 
+import com.javase.banking.clientservice.clientexception.ClientNotFoundException;
 import com.javase.banking.clientservice.dto.ClientDto;
 import com.javase.banking.clientservice.clientfacade.ClientFacade;
 import com.javase.banking.clientservice.clientfacade.IClientFacade;
@@ -105,10 +106,12 @@ public class ClientController{
             System.out.println(e.getMessage());
         } catch (FileNotFoundException e) {
             System.out.println(e.getMessage());
+        } catch (ClientNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    private void saveOnExit() {
+    public void saveOnExit() {
         clientFacade.saveOnExit();
     }
 
@@ -133,15 +136,15 @@ public class ClientController{
             clientFacade.addClient(client);
         }
     }
-    public ClientDto searchClient(Object clientDetailToSearch) {
+    public ClientDto searchClient(Object clientDetailToSearch) throws ClientNotFoundException {
        return clientFacade.getClient(clientDetailToSearch);
     }
 
-    public void deleteClient(int id){
+    public void deleteClient(int id) throws ClientNotFoundException {
         clientFacade.deleteClientById(id);
     }
 
-    public void updateClient(int id, ClientDto newClient) throws ValidationException {
+    public void updateClient(int id, ClientDto newClient) throws ValidationException, ClientNotFoundException {
         clientFacade.updateClient(id, newClient);
     }
     public void printAllClients(){
@@ -149,6 +152,6 @@ public class ClientController{
     }
 
 
-
-
+    public void initData() {
+    }
 }

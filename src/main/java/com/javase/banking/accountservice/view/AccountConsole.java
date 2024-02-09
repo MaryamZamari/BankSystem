@@ -1,23 +1,24 @@
 package com.javase.banking.accountservice.view;
 
 import com.javase.banking.accountservice.dto.AccountDto;
+import com.javase.banking.accountservice.exception.AccountNotFoundException;
+import com.javase.banking.accountservice.exception.TransactionUnsuccessfulException;
 import com.javase.banking.accountservice.model.AccountType;
-import com.javase.banking.clientservice.clientfacade.ClientFacade;
+import com.javase.banking.shared.exception.ValidationException;
 import com.javase.banking.shared.model.DocFile;
 import com.javase.banking.shared.model.FileType;
 import com.javase.banking.shared.utility.IdGeneratorUtil;
-import com.javase.banking.shared.utility.ScannerWrapperUtil;
+import com.javase.banking.shared.view.BaseConsole;
 import java.math.BigDecimal;
 import java.security.InvalidParameterException;
 import java.text.ParseException;
+import java.util.List;
 import java.util.function.Function;
 
-public class AccountConsole {
+public class AccountConsole extends BaseConsole {
     private static final AccountConsole INSTANCE;
-    private final ScannerWrapperUtil scannerWrapper;
-    private final ClientFacade clientFacade= ClientFacade.getInstance();
     private AccountConsole(){
-        scannerWrapper= ScannerWrapperUtil.getInstance();
+        super();
     }
     static{
         INSTANCE= new AccountConsole();
@@ -37,9 +38,13 @@ public class AccountConsole {
                 "4.Remove an account  \n" +
                 "5.Printing all the accounts.\n" +
                 "6.Printing all the deleted accounts.\n" +
-                "7.Save data.\n" +
-                "8.Load data.\n" +
-                "9.Add data.\n"
+                "7.Search accounts by Client name.\n" +
+                "8.Save data.\n" +
+                "9.Load data.\n" +
+                "10.Add data.\n" +
+                "11.Deposit.\n" +
+                "12.Withdraw.\n" +
+                "13.Transact.\n"
         );
     }
 
@@ -82,9 +87,10 @@ public class AccountConsole {
         }else{
             throw new InvalidParameterException();
         }
-
     }
-       public DocFile getFileTypeFromUser(){
+
+    //=========== File and saving related methods ===========
+    public DocFile getFileTypeFromUser(){
         DocFile file;
         char type = scannerWrapper.getUserInput("what type of File? " +
                 "S: Serialised,  " +
@@ -100,7 +106,6 @@ public class AccountConsole {
         return file;
     }
 
-
     public String getFileNameFromUser() {
         String fileName= scannerWrapper.getUserInput("Enter the name of the file: ", Function.identity());
         return fileName;
@@ -111,10 +116,50 @@ public class AccountConsole {
         clientFacade.addData(fileName);
     }
 
+    public void initData(){
+        accountFacade.initData();
+    }
+
+    public void saveOnExit(){
+        accountFacade.saveOnExit();
+    }
+
+    //===========End of File and saving related methods ===========
+
     public AccountDto getAccountDetailsFromUserForEdit(AccountDto oldAccount) {
         //TODO: implement getAccountDetailsFromUserForEdit
         return null;
     }
+
+    public void  searchAccountByClientName() {
+        String name = scannerWrapper.getUserInput("Enter client name", Function.identity());
+        List<AccountDto> clients = accountFacade.searchAccountByClientName(name);
+        clients.forEach(System.out::println);
+    }
+
+    public void deposit() throws AccountNotFoundException {
+        int accountId = scannerWrapper.getUserInput("Enter account Id: ", Integer::valueOf);
+        BigDecimal amount = scannerWrapper.getUserInput("Enter the amount to deposit: " , BigDecimal::new);
+        accountFacade.deposit(accountId, amount);
+    }
+
+    public void withdraw() throws ValidationException, AccountNotFoundException {
+        int accountId = scannerWrapper.getUserInput("Enter account Id: ", Integer::valueOf);
+        BigDecimal amount = scannerWrapper.getUserInput("Enter the amount to deposit: " , BigDecimal::new);
+        accountFacade.withdraw(accountId, amount);
+    }
+    public void transfer() throws ValidationException, AccountNotFoundException, TransactionUnsuccessfulException {
+        try {
+            int sourceAccountId = scannerWrapper.getUserInput("Enter the source account id: ", Integer::valueOf);
+            int destinationAccountId = scannerWrapper.getUserInput("Enter the destination account id: ", Integer::valueOf);
+            BigDecimal amount = scannerWrapper.getUserInput("Enter the amount to deposit: ", BigDecimal::new);
+            accountFacade.transfer(sourceAccountId , destinationAccountId , amount);
+        }catch(TransactionUnsuccessfulException | ValidationException | AccountNotFoundException exception){
+           throw new TransactionUnsuccessfulException("Transaction unsuccessful!");
+        }
+    }
+
+
 }
 
 
