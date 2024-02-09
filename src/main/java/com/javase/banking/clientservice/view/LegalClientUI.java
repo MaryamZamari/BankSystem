@@ -23,8 +23,6 @@ public class LegalClientUI extends AbstractCustomerUI {
 
         ((LegalClientDto) oldClient).setContactPerson(person);
         ((LegalClientDto) oldClient).setIndustry(industry);
-        ((LegalClientDto) oldClient).setWebsite(website);
-        ((LegalClientDto) oldClient).setEmployeeCount(count);    //TODO: check this thing later. should u send a part of the logic in service?
     }
 
     @Override
@@ -35,7 +33,6 @@ public class LegalClientUI extends AbstractCustomerUI {
         String registrationNumber = null;
         String date = null;
         Date estDate = null;
-        String website = null;
         int count= 0;
         try{
             person = scannerWrapper.getUserInput("enter Contact Person: ", Function.identity());
@@ -43,14 +40,12 @@ public class LegalClientUI extends AbstractCustomerUI {
             registrationNumber = scannerWrapper.getUserInput("enter Registration Number: ", Function.identity());
             date = scannerWrapper.getUserInput("enter Establishment Date (dd-MM-yyyy): ", Function.identity());
             estDate = new SimpleDateFormat("dd-MM-yyyy").parse(date);
-            website = scannerWrapper.getUserInput("enter Website: " , Function.identity());
-            count = scannerWrapper.getUserInput("enter Employee Count: ", Integer::valueOf);
         }catch(ParseException exception){
             exception.printStackTrace();
         }
         ClientDto legalClientDto= new LegalClientDto(null , type, name, person, industry, fiscalCode,
-                                                    registrationNumber, estDate, email, website, address,
-                                                    count, numbers, passwordInput);
+                                                    registrationNumber, estDate, email, address,
+                                                    numbers, passwordInput);
         return legalClientDto;
     }
 

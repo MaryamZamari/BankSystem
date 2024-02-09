@@ -14,8 +14,6 @@ public class LegalClient extends Client implements Serializable {
     private String industry;
     private String registrationNumber;
     private Date establishmentDate;
-    private String website;
-    private int employeeCount;
 
 
 

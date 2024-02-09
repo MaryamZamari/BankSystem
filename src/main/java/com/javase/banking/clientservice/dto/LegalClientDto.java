@@ -16,20 +16,16 @@ public class LegalClientDto extends ClientDto {
     private String industry;
     private String registrationNumber;
     private Date establishmentDate;
-    private String website;
-    private int employeeCount;
     private List<Account> accounts;
 
     public LegalClientDto(Integer id, ClientType type, String name, String contactPerson, String industry,
                           String fiscalCode, String registrationNumber, Date establishmentDate, String email,
-                          String website, String address, int employeeCount, String number, String password ) {
+                          String address, String number, String password ) {
         super(id, name, fiscalCode, email, address, type, number, password);
         this.contactPerson = contactPerson;
         this.industry = industry;
         this.registrationNumber = registrationNumber;
         this.establishmentDate = establishmentDate;
-        this.website = website;
-        this.employeeCount = employeeCount;
     }
 
 
