@@ -5,15 +5,14 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import java.math.BigDecimal;
-import java.util.Currency;
 import java.util.Date;
 
 @Getter
 @Setter
 @ToString
 public class TransactionConversion {
-    private Currency source;
-    private Currency destination;
+    private CurrencyType source;
+    private CurrencyType destination;
     private ConversionRate conversionRate;
     private Date timeStamp;
     private BigDecimal amount;
