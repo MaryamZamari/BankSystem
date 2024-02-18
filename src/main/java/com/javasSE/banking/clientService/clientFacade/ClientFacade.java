@@ -13,25 +13,31 @@ import com.javasSE.banking.clientService.service.ClientService;
 import com.javasSE.banking.common.exception.FileException;
 import com.javasSE.banking.common.exception.ValidationException;
 import org.mapstruct.factory.Mappers;
+
 import java.io.FileNotFoundException;
+import java.util.List;
 
 public class ClientFacade implements IClientFacade {
     /*
         client will interact with facade instead of the service. and facade takes and returns DTOs.
      */
     private static final ClientFacade INSTANCE;
-    static{
-        INSTANCE= new ClientFacade();
+
+    static {
+        INSTANCE = new ClientFacade();
     }
-    public static ClientFacade getInstance(){
+
+    public static ClientFacade getInstance() {
         return INSTANCE;
     }
+
     private final ClientService clientService;
     private final IClientMapStruct clientMapStruct;
-    private ValidationContext<ClientDto> validationContext= new ClientValidationContext();
-    private ClientFacade(){
+    private ValidationContext<ClientDto> validationContext = new ClientValidationContext();
+
+    private ClientFacade() {
         clientService = ClientService.getInstance();
-        clientMapStruct= Mappers.getMapper(IClientMapStruct.class);
+        clientMapStruct = Mappers.getMapper(IClientMapStruct.class);
     }
 
 
@@ -50,21 +56,21 @@ public class ClientFacade implements IClientFacade {
     }
 
     @Override
-    public ClientDto getClientById(int clientId) throws ClientNotFoundException{
+    public ClientDto getClientById(int clientId) throws ClientNotFoundException {
         return clientMapStruct
                 .maptoClientDto(clientService.getClientById(clientId));
     }
 
     @Override
-    public ClientDto getClientByName(String clientName) throws ClientNotFoundException{
+    public ClientDto getClientByName(String clientName) throws ClientNotFoundException {
         return clientMapStruct
                 .maptoClientDto(clientService.getClientByName(clientName));
     }
 
     @Override
-    public void updateClient(int id, ClientDto newClientDto) throws ValidationException { //TODO: you can even delete this id. control again.
+    public void updateClient(int id, ClientDto newClientDto) throws ValidationException {
         validationContext.validate(newClientDto);
-        Client client= clientService.getClientById(id);
+        Client client = clientService.getClientById(id);
         clientMapStruct.updateClientFromDto(newClientDto, client);
         clientService.updateClientList(id, client);
     }
@@ -75,8 +81,9 @@ public class ClientFacade implements IClientFacade {
     }
 
     @Override
-    public void printAllClients() {
-        clientService.printAllClients();
+    public List<ClientDto> getAllClients() {
+        return
+                clientMapStruct.mapToClientDtoList(clientService.getAllClients());
     }
 
     @Override
@@ -87,7 +94,7 @@ public class ClientFacade implements IClientFacade {
     @Override
     public void loadData(FileType type) throws FileException, FileNotFoundException {
         clientService.loadData(type);
-           }
+    }
 
     @Override
     public void initData() {
@@ -106,6 +113,12 @@ public class ClientFacade implements IClientFacade {
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public List<ClientDto> getAllDeletedClients() {
+        return clientMapStruct
+                .mapToClientDtoList(clientService.getAllDeletedClients());
     }
 
 

@@ -12,7 +12,6 @@ import com.javasSE.banking.clientService.model.Client;
 import com.javasSE.banking.clientService.model.LegalClient;
 import com.javasSE.banking.clientService.model.PersonalClient;
 import com.javasSE.banking.common.exception.FileException;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,8 +50,7 @@ public class ClientService implements IClientService {
                                                 "or name and contact person's name!");
         }
         clientList.add(client);
-        System.out.println("ClientDto was added successfully. ClientDto details: "
-                            + client.toString());
+        System.out.println("Client id: " + client.getId());
     }
     private static Predicate<Client> isDuplicate(Client client) {
         return x -> x.getName().equals(client.getName()) &&
@@ -114,26 +112,20 @@ public class ClientService implements IClientService {
         clientToDelete.setDeleted(true);
         System.out.println("ClientDto removed successfully! The updated list is: " + getClientList().toString());
     }
-    @Override
-    public void printAllClients() {
-      List<Client> allClients=  getClientList().stream()
-                                    .filter(x -> !x.isDeleted())
-                                    .collect(Collectors.toList());
-        System.out.println("All customers: \n");
-        for(Client client: allClients){
-            try{
-                System.out.println(objectMapper.writeValueAsString(client));
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException("Error on printing the customer with ID " + client.getId());
-            }
-        }
-    }
+
     @Override
     public List<Client> getAllClients() {
         List<Client> allClients=  getClientList().stream()
                 .filter(x -> !x.isDeleted())
                 .collect(Collectors.toList());
         return allClients;
+    }
+
+    @Override
+    public List<Client> getAllDeletedClients() {
+        return getClientList().stream()
+                .filter(x -> x.isDeleted())
+                .collect(Collectors.toList());
     }
 
     @Override

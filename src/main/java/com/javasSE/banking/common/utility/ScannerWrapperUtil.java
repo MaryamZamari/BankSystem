@@ -29,9 +29,6 @@ public class ScannerWrapperUtil implements AutoCloseable{
     }
 
 
-    public void clearExcessiveInput(){
-        scanner.nextLine();
-            }
     @Override
     public void close(){
         scanner.close();

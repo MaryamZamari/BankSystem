@@ -21,7 +21,7 @@ public class BankConsole {
     public void printBankMenu(){
         System.out.println("Welcome to the Banking Portal! \n" +
                 "--- select a menu item: --- \n" +
-                "0.Back to the bank menu \n" +
+                "0.Exit. \n" +
                 "1.Client system \n" +
                 "2.Account System \n" +
                 "3.Load Data \n" +

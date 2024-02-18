@@ -48,7 +48,6 @@ public class ConversionService {
                 .multiply(rate);
     }
 
-//TODO: put validation for gmail and password length and format.
     //TODO: check the files
     //TODO: validation for email duplication
     //TODO: fix the null for Id

@@ -8,6 +8,7 @@ import com.javasSE.banking.common.model.FileType;
 import com.javasSE.banking.common.exception.FileException;
 import com.javasSE.banking.common.exception.ValidationException;
 import java.io.FileNotFoundException;
+import java.util.List;
 
 public interface IClientFacade {
     void addClient(ClientDto client) throws DuplicateClientException, ValidationException;
@@ -16,12 +17,11 @@ public interface IClientFacade {
     ClientDto getClientByName(String clientName)throws ClientNotFoundException;
     void updateClient(int id, ClientDto newClient) throws ValidationException, ClientNotFoundException;
     void deleteClientById(int cliendId)throws ClientNotFoundException;
-    void printAllClients();
+    List<ClientDto> getAllClients();
     void saveData(DocFile file) throws FileException;
     void loadData(FileType type) throws FileException, FileNotFoundException;
     void initData();
     void saveOnExit();
     void addData(String name) throws FileNotFoundException;
-
-
+    List<ClientDto> getAllDeletedClients();
 }

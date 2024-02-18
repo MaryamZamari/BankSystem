@@ -26,7 +26,7 @@ public class LegalClientUI extends AbstractCustomerUI {
     }
 
     @Override
-    protected ClientDto additionalGenerateClient(Integer id, String name, String fiscalCode, String email, String address,
+    protected ClientDto additionalGenerateClient(String name, String fiscalCode, String email, String address,
                                                  boolean deleted, String passwordInput, ClientType type, String numbers) {
         String person = null;
         String industry = null;

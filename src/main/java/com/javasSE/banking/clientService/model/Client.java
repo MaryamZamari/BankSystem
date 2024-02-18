@@ -17,10 +17,9 @@ import java.io.Serializable;
 @Setter
 @ToString
 @AllArgsConstructor
-@NoArgsConstructor
 public abstract class Client implements Serializable {
     @JsonIgnore
-    private Integer id;      //TODO: CHECK why id comes out null
+    private Integer id;
     private String name;
     private String fiscalCode;
     private String email;
@@ -28,6 +27,7 @@ public abstract class Client implements Serializable {
     private ClientType type;
     private String number;
     private boolean deleted;
+    @JsonIgnore
     private String password;
 
     public Client(String name, String fiscalCode, String email,
@@ -46,6 +46,14 @@ public abstract class Client implements Serializable {
 
     public Client(int id, ClientType type, String name, String fiscalCode, String email, String address, String number, boolean deleted, String password){
 
+    }
+
+    public Client(){
+        this.id = IdGeneratorUtil.generateUniqueClientId();
+    }
+
+    public void setPassword(String password) {
+        this.password= PasswordEncoderUtil.encodePassword(password, this.id);
     }
 
     private static String capitaliseFirstLetter(String str){

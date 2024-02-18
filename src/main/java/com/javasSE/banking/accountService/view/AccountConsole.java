@@ -18,12 +18,15 @@ import java.util.function.Function;
 
 public class AccountConsole extends BaseConsole {
     private static final AccountConsole INSTANCE;
-    private AccountConsole(){
+
+    private AccountConsole() {
         super();
     }
-    static{
-        INSTANCE= new AccountConsole();
+
+    static {
+        INSTANCE = new AccountConsole();
     }
+
     public static AccountConsole getInstance() {
         return INSTANCE;
     }
@@ -53,75 +56,96 @@ public class AccountConsole extends BaseConsole {
     public AccountDto getAccountDetailsFromUser() throws ParseException {
         AccountDto newAccount = null;
         char accountType = scannerWrapper.getUserInput("what type of client? " +
-                                                                "E: Euro,  " +
-                                                                "D: Dollar. ", x -> x.toUpperCase().charAt(0));
-        scannerWrapper.clearExcessiveInput();
-        AccountType type = switch(accountType){
+                        "E: Euro,  " +
+                        "D: Dollar. ",
+                x -> {
+                    try {
+                        return x.toUpperCase().charAt(0);
+                    } catch (IllegalStateException exception) {
+                        System.out.println("You entered a wrong character by mistake, Enter a character from the menu");
+                        throw new RuntimeException();
+                    }
+                });
+        AccountType type = switch (accountType) {
             case 'E' -> AccountType.EURO;
             case 'D' -> AccountType.DOLLAR;
             default -> throw new IllegalStateException("Unexpected value: " + accountType);
         };
-        String name= scannerWrapper.getUserInput("enter account name: ", Function.identity());
+        String name = scannerWrapper.getUserInput("enter account name: ", Function.identity());
         String number = scannerWrapper.getUserInput("enter account number: ", Function.identity());
-        BigDecimal balance= scannerWrapper.getUserInput("Enter balance: ", BigDecimal::new);
-        int clientId= scannerWrapper.getUserInput("Enter client id: ", Integer::valueOf);
-        newAccount= new AccountDto(IdGeneratorUtil.generateUniqueAccountId(), name, number, type, balance, clientId);
+        BigDecimal balance = scannerWrapper.getUserInput("Enter balance: ", BigDecimal::new);
+        int clientId = scannerWrapper.getUserInput("Enter client id: ", Integer::valueOf);
+        newAccount = new AccountDto(IdGeneratorUtil.generateUniqueAccountId(), name, number, type, balance, clientId);
         return newAccount;
     }
 
-       public int getIdFromUser (){
-        int id= scannerWrapper.getUserInput("enter Id: " , Integer::valueOf);
+    public int getIdFromUser() {
+        int id = scannerWrapper.getUserInput("enter Id: ", Integer::valueOf);
         return id;
     }
+
     public Object getAccountDetailForSelection() throws InvalidParameterException {
-        char choice=
-            scannerWrapper.getUserInput("How do you want to search for the account? \n" +
-                                        "N.Account Number \n"+
-                                        "I.Id\n", x -> x.charAt(0));
-        scannerWrapper.clearExcessiveInput();
-        if(choice == 'N'){
-            String name= scannerWrapper.getUserInput("enter name:", Function.identity());
+        char choice =
+                scannerWrapper.getUserInput("How do you want to search for the account? \n" +
+                        "N.Account Number \n" +
+                        "I.Id\n", x -> {
+                    try {
+                        return x.toUpperCase().charAt(0);
+                    } catch (IllegalStateException exception) {
+                        System.out.println("You entered a wrong character by mistake. Enter a character from the menu");
+                        throw new RuntimeException();
+                    }
+                });
+        if (choice == 'N') {
+            String name = scannerWrapper.getUserInput("enter name:", Function.identity());
             return name;
-        }else if(choice == 'I'){
-            int id= scannerWrapper.getUserInput("enter id: ", Integer::valueOf);
+        } else if (choice == 'I') {
+            int id = scannerWrapper.getUserInput("enter id: ", Integer::valueOf);
             return id;
-        }else{
+        } else {
             throw new InvalidParameterException();
         }
     }
 
     //=========== File and saving related methods ===========
-    public DocFile getFileTypeFromUser(){
+    public DocFile getFileTypeFromUser() {
         DocFile file;
         char type = scannerWrapper.getUserInput("what type of File? " +
                 "S: Serialised,  " +
-                "J: JSON. ", x -> x.toUpperCase().charAt(0));
-        String fileName= scannerWrapper.getUserInput("Enter the name of the file: ", Function.identity());
-        scannerWrapper.clearExcessiveInput();
-        FileType fileType = switch(type){
+                "J: JSON. ",
+                x -> {
+                    try{
+                        return x.toUpperCase().charAt(0);
+                    }catch(IllegalStateException exception){
+                        System.out.println("You entered a wrong character by mistake, Enter a character from the menu");
+                        throw new RuntimeException();
+                    }
+                });
+        String fileName = scannerWrapper.getUserInput("Enter the name of the file: ", Function.identity());
+        FileType fileType = switch (type) {
             case 'S' -> FileType.SERIALISED;
             case 'J' -> FileType.JSON;
             default -> throw new IllegalStateException("Unexpected value: " + type);
         };
-        file= new DocFile(fileName, fileType);
+        file = new DocFile(fileName, fileType);
         return file;
     }
 
     public String getFileNameFromUser() {
-        String fileName= scannerWrapper.getUserInput("Enter the name of the file: ", Function.identity());
+        String fileName = scannerWrapper.getUserInput("Enter the name of the file: ", Function.identity());
         return fileName;
     }
 
     public void addData() {
-        String fileName= scannerWrapper.getUserInput("Enter the name of the JSON file: ", Function.identity());
+        String fileName = scannerWrapper.getUserInput("Enter the name of the JSON file: ", Function.identity());
         clientFacade.addData(fileName);
     }
 
-    public void initData(){
+    public void initData() {
         accountFacade.initData();
     }
 
-    public void saveOnExit(){
+    public void saveOnExit() {
         accountFacade.saveOnExit();
     }
 
@@ -132,7 +156,7 @@ public class AccountConsole extends BaseConsole {
         return null;
     }
 
-    public void  searchAccountByClientName() {
+    public void searchAccountByClientName() {
         String name = scannerWrapper.getUserInput("Enter client name", Function.identity());
         List<AccountDto> clients = accountFacade.searchAccountByClientName(name);
         clients.forEach(System.out::println);
@@ -140,23 +164,24 @@ public class AccountConsole extends BaseConsole {
 
     public void deposit() throws AccountNotFoundException {
         int accountId = scannerWrapper.getUserInput("Enter account Id: ", Integer::valueOf);
-        BigDecimal amount = scannerWrapper.getUserInput("Enter the amount to deposit: " , BigDecimal::new);
+        BigDecimal amount = scannerWrapper.getUserInput("Enter the amount to deposit: ", BigDecimal::new);
         accountFacade.deposit(accountId, amount);
     }
 
     public void withdraw() throws ValidationException, AccountNotFoundException {
         int accountId = scannerWrapper.getUserInput("Enter account Id: ", Integer::valueOf);
-        BigDecimal amount = scannerWrapper.getUserInput("Enter the amount to deposit: " , BigDecimal::new);
+        BigDecimal amount = scannerWrapper.getUserInput("Enter the amount to deposit: ", BigDecimal::new);
         accountFacade.withdraw(accountId, amount);
     }
+
     public void transfer() throws ValidationException, AccountNotFoundException, TransactionUnsuccessfulException {
         try {
             int sourceAccountId = scannerWrapper.getUserInput("Enter the source account id: ", Integer::valueOf);
             int destinationAccountId = scannerWrapper.getUserInput("Enter the destination account id: ", Integer::valueOf);
             BigDecimal amount = scannerWrapper.getUserInput("Enter the amount to deposit: ", BigDecimal::new);
-            accountFacade.transfer(sourceAccountId , destinationAccountId , amount);
-        }catch(TransactionUnsuccessfulException | ValidationException | AccountNotFoundException exception){
-           throw new TransactionUnsuccessfulException("Transaction unsuccessful!");
+            accountFacade.transfer(sourceAccountId, destinationAccountId, amount);
+        } catch (TransactionUnsuccessfulException | ValidationException | AccountNotFoundException exception) {
+            throw new TransactionUnsuccessfulException("Transaction unsuccessful!");
         }
     }
 

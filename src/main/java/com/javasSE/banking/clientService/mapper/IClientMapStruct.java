@@ -1,5 +1,6 @@
 package com.javasSE.banking.clientService.mapper;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.javasSE.banking.clientService.dto.ClientDto;
 import com.javasSE.banking.clientService.dto.LegalClientDto;
 import com.javasSE.banking.clientService.dto.PersonalClientDto;
@@ -7,6 +8,7 @@ import com.javasSE.banking.clientService.model.Client;
 import com.javasSE.banking.clientService.model.LegalClient;
 import com.javasSE.banking.clientService.model.PersonalClient;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import java.util.List;
 
@@ -38,11 +40,17 @@ public interface IClientMapStruct {
             c = updatePersonalClientFromDto((PersonalClientDto) clientDto , (PersonalClient) client);
         }
     }
+    @Mapping(ignore = true , target = "id")
     PersonalClient mapToPersonalClient(PersonalClientDto personalClient);
+    @Mapping(ignore = true , target = "password")
     PersonalClientDto mapToPersonalClientDto(PersonalClient personalClient);
+    @Mapping(ignore = true , target = "password")
     LegalClientDto mapToLegalClientDto(LegalClient legalClient);
+    @Mapping(ignore = true , target = "id")
     LegalClient mapToLegalClient(LegalClientDto legalClient);
+    @Mapping(ignore = true , target = "id")
     PersonalClient updatePersonalClientFromDto(PersonalClientDto personalClientDto, @MappingTarget PersonalClient client);
+    @Mapping(ignore = true , target = "id")
     LegalClient updateLegalClientFromDto(LegalClientDto legalClientDto, @MappingTarget LegalClient legalClient);
     List<Client> mapToClientList(List<ClientDto> clientDtoList);
     List<ClientDto> mapToClientDtoList(List<Client> clientList);

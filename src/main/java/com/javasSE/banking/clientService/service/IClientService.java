@@ -16,7 +16,6 @@ public interface IClientService {
     Client getClientByName(String clientName);
     void updateClientList(int clientId, Client newClient);
     void deleteClientById(int cliendId);
-    void printAllClients();
     void saveData(DocFile file) throws FileException;
     void loadData(FileType type) throws FileException, FileNotFoundException;
     void initData();
@@ -24,4 +23,5 @@ public interface IClientService {
     void addData(String name) throws FileNotFoundException;
     List<Client> getAllClients();
     void loadData(DocFile file) throws FileNotFoundException;
+    List<Client> getAllDeletedClients();
 }

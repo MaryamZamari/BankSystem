@@ -1,5 +1,7 @@
 package com.javasSE.banking.clientService.view;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.javasSE.banking.clientService.model.Client;
 import com.javasSE.banking.common.model.FileType;
 import com.javasSE.banking.clientService.clientException.ClientNotFoundException;
 import com.javasSE.banking.clientService.dto.ClientDto;
@@ -13,7 +15,7 @@ import com.javasSE.banking.common.utility.ScannerWrapperUtil;
 import java.io.FileNotFoundException;
 import java.security.InvalidParameterException;
 import java.text.ParseException;
-import java.util.InputMismatchException;
+import java.util.List;
 
 /***
  *
@@ -58,7 +60,8 @@ public class ClientController{
                         try{
                             clientDetailToSearch= view.getClientDetailForSelection();}
                         catch(InvalidParameterException exception){
-                            System.out.println("you typed the wrong characters. revise your choice to select the client!");
+                            System.out.println("you typed the wrong characters. " +
+                                                 "revise your choice to select the client!");
                              }
                         searchClient(clientDetailToSearch);
                         break;
@@ -73,33 +76,35 @@ public class ClientController{
                         deleteClient(clientId);
                         break;
                     case 5:
-                        printAllClients();
+                        getAllClients();
+                        break;
+                    case 6:
+                        printAllDeletedClients();
                         break;
                     case 7:
+                        System.out.println("Print accounts of client");
+                        break;
+                    case 8:
                         DocFile file = view.getFileTypeFromUser();
                         saveData(file);
                         break;
-                    case 8:
+                    case 9:
                         file= view.getFileTypeFromUser();
                         loadData(file.getType());
                         break;
-                    case 9:
+                    case 10:
                         view.addData();
                         break;
                     default:
                         if(choice != 0){
-                            System.out.println("the selected number is invalid. try again!");
+                            System.out.println("the selected number is invalid. try again! \n");
                         }
                 }
             }while(choice != 0);
         }catch(ParseException ex){
-            ex.printStackTrace();
-            System.out.println("could not parse the String to produce a Date. check your input or the code!");
-        }catch(NumberFormatException ex){
-            ex.printStackTrace();
-            System.out.println("Error: " + ex.getMessage());
-        }catch(InputMismatchException ex){
-            System.out.println("invalid input.please enter a valid output");
+            System.out.println("could not parse the String to produce a Date. check your input or the code! \n");
+        }catch(NumberFormatException ex) {
+            throw new NumberFormatException("Error: or you entered a character where a number was expected \n");
         } catch (DuplicateClientException e) {
            e.getMessage();
         } catch (ValidationException e) {
@@ -111,6 +116,12 @@ public class ClientController{
         } catch (ClientNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void printAllDeletedClients() {
+        System.out.println("All deleted customers: \n");
+        List<ClientDto> allClients = clientFacade.getAllDeletedClients();
+        allClients.stream().forEach(System.out::println);
     }
 
     public void saveOnExit() {
@@ -130,8 +141,10 @@ public class ClientController{
     public void addClient(ClientDto client) throws DuplicateClientException, ValidationException {
         try {
             clientFacade.addClient(client);
+            System.out.println("Client was added successfully.");
         }catch(DuplicateClientException exception){
-            System.out.println("it is not possible to add a duplicate customer! check surname or business person name!");
+            System.out.println("it is not possible to add a duplicate customer!" +
+                    " check surname or business person name!");
             clientFacade.addClient(client);
         }catch(ValidationException e){
             System.out.println(e.getMessage());
@@ -149,10 +162,11 @@ public class ClientController{
     public void updateClient(int id, ClientDto newClient) throws ValidationException, ClientNotFoundException {
         clientFacade.updateClient(id, newClient);
     }
-    public void printAllClients(){
-        clientFacade.printAllClients();
-    }
-
+    public void getAllClients() {
+        System.out.println("All customers: \n");
+        List<ClientDto> allClients = clientFacade.getAllClients();
+        allClients.stream().forEach(System.out::println);
+        }
 
     public void initData() {
     }

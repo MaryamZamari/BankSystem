@@ -3,6 +3,8 @@ package com.javasSE.banking.clientService.view;
 import com.javasSE.banking.clientService.dto.ClientDto;
 import com.javasSE.banking.clientService.model.ClientType;
 import com.javasSE.banking.common.utility.ScannerWrapperUtil;
+
+import java.text.ParseException;
 import java.util.function.Function;
 
 public abstract class AbstractCustomerUI {
@@ -20,8 +22,7 @@ public abstract class AbstractCustomerUI {
         };
     }
 
-    public ClientDto generateCustomer(ClientType type){
-        Integer id= null;
+    public ClientDto generateCustomer(ClientType type) throws ParseException {
         String name = scannerWrapper.getUserInput("Enter Name: ", Function.identity());
         String fiscalCode = scannerWrapper.getUserInput("Enter FiscalCode: ", Function.identity());
         String email = scannerWrapper.getUserInput("Enter new Email: ", Function.identity());
@@ -29,12 +30,12 @@ public abstract class AbstractCustomerUI {
         boolean deleted= false;
         String passwordInput= scannerWrapper.getUserInput("Enter password: ", Function.identity());
         String numberInput= scannerWrapper.getUserInput("Enter number: ", Function.identity());
-        System.out.println("client data obtained. moving on to the specific client. id is : " + id );
-        return additionalGenerateClient(id, name, fiscalCode, email, address, deleted, passwordInput, type, numberInput);
+        System.out.println("client data obtained from the DTO. moving on to the specific client.");
+        return additionalGenerateClient(name, fiscalCode, email, address, deleted, passwordInput, type, numberInput);
     }
 
 
-    protected abstract ClientDto additionalGenerateClient(Integer id, String name, String fiscalCode, String email,
+    protected abstract ClientDto additionalGenerateClient(String name, String fiscalCode, String email,
                                                           String address, boolean deleted, String passwordInput,
-                                                          ClientType type, String number);
+                                                          ClientType type, String number) throws ParseException;
 }

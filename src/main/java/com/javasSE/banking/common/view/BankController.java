@@ -41,10 +41,10 @@ public class BankController{
                   }
               }
           }while(choice != 0);
+        }catch (TransactionUnsuccessfulException e) {
+            throw new RuntimeException(e);
         }catch(Exception e){
             e.printStackTrace();
-        } catch (TransactionUnsuccessfulException e) {
-            throw new RuntimeException(e);
         }
     }
     private void saveOnExit(){

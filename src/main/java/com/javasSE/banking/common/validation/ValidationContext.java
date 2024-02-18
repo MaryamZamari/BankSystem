@@ -35,7 +35,7 @@ public class ValidationContext<T> {
             // Check if the validation class is the same as or a superclass of the object class
             if (validationClass.isAssignableFrom(objectClass) || validationClass.isAssignableFrom(objectClass.getSuperclass())) {
                 // If the object class is a subclass of the validation class,
-                // only apply the validation if they are exactly the same class
+                // only apply the validation if they are exactly the same class1چ
                 if (!objectClass.equals(validationClass)) {
                     System.out.println("Skipping validation");
                     return false; // Skip validation
