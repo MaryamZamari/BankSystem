@@ -5,9 +5,7 @@ import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
-@ToString
+@Data
 public abstract class ClientDto {
     private Integer id;
     private String name;

@@ -11,8 +11,9 @@ public class EmailValidation implements IValidation<ClientDto> {
     @Override
     public void validate(ClientDto clientDto) throws ValidationException {
         String email = clientDto.getEmail();
-        boolean isEmailEmpty = clientDto.getEmail().trim().isEmpty() || clientDto.getEmail() == null;
-        if(isEmailEmpty){
+        boolean isEmailNullEmpty = clientDto.getEmail() == null || clientDto.getEmail().trim().isEmpty();
+
+        if(isEmailNullEmpty){
             throw new ValidationException("Email can not be null or empty!");
         }
         if(!isCorrectFormat(email)){

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Date;
 
 public class EmailValidationTest {
+
     @Test
     public void emailWrongFormatValidationTest(){
         Date birthDate = new Date("04-Apr-1990");
@@ -25,7 +26,7 @@ public class EmailValidationTest {
     }
 
     @Test
-    public void nullEmailFormatValidationTest(){
+    public void nullEmailValidationTest(){
         Date birthDate = new Date("04-Apr-1990");
         ClientDto clientDto = new PersonalClientDto(0 , "name" , "surname" , birthDate ,
                 "iranian" , "M1234RGT78B" , null ,"To, Street" ,
