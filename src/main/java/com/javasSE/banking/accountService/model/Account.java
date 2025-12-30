@@ -15,7 +15,7 @@ public class Account implements Serializable {
     @Setter(AccessLevel.NONE)
     private Integer Id;
     private String accountNumber;
-    private AccountType type;
+    private AccountType currency;
     private BigDecimal balance;
     private Integer clientId;
     private Boolean deleted;
@@ -24,7 +24,7 @@ public class Account implements Serializable {
                    BigDecimal balance, Integer clientId, Boolean deleted) {
         Id = IdGeneratorUtil.generateUniqueAccountId();
         this.accountNumber = accountNumber;
-        this.type = type;
+        this.currency = type;
         this.balance = BigDecimal.ZERO;
         this.clientId = clientId;
         this.deleted = false;

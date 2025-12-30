@@ -214,8 +214,8 @@ public class AccountService implements IAccountService{
         try {
             Account sourceAccount = getAccountById(sourceAccountId);
             Account destAccount = getAccountById(desAccountId);
-            AccountType sourceType = sourceAccount.getType();
-            AccountType destType = destAccount.getType();
+            AccountType sourceType = sourceAccount.getCurrency();
+            AccountType destType = destAccount.getCurrency();
             TransactionIdPair idPair = new TransactionIdPair(sourceAccountId , desAccountId);
             CurrencyPair currencyPair = new CurrencyPair(
                     CurrencyType.valueOf(sourceType.name()) ,
