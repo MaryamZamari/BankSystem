@@ -55,7 +55,7 @@ public class AccountConsole extends BaseConsole {
 
     public AccountDto getAccountDetailsFromUser() throws ParseException {
         AccountDto newAccount = null;
-        char accountType = scannerWrapper.getUserInput("what type of client? " +
+        char accountType = scannerWrapper.getUserInput("what type of account? " +
                         "E: Euro,  " +
                         "D: Dollar. ",
                 x -> {
@@ -72,40 +72,20 @@ public class AccountConsole extends BaseConsole {
             default -> throw new IllegalStateException("Unexpected value: " + accountType);
         };
         String name = scannerWrapper.getUserInput("enter account name: ", Function.identity());
-        String number = scannerWrapper.getUserInput("enter account number: ", Function.identity());
         BigDecimal balance = scannerWrapper.getUserInput("Enter balance: ", BigDecimal::new);
         int clientId = scannerWrapper.getUserInput("Enter client id: ", Integer::valueOf);
-        newAccount = new AccountDto(IdGeneratorUtil.generateUniqueAccountId(), name, number, type, balance, clientId);
+        newAccount = new AccountDto(name, type, balance, clientId);
+        System.out.println("accountDto received from user: " + newAccount.toString());
         return newAccount;
     }
 
     public int getIdFromUser() {
-        int id = scannerWrapper.getUserInput("enter Id: ", Integer::valueOf);
-        return id;
+        return scannerWrapper.getUserInput("enter Id: ", Integer::valueOf);
     }
 
-    public Object getAccountDetailForSelection() throws InvalidParameterException {
-        char choice =
-                scannerWrapper.getUserInput("How do you want to search for the account? \n" +
-                        "N.Account Number \n" +
-                        "I.Id\n", x -> {
-                    try {
-                        return x.toUpperCase().charAt(0);
-                    } catch (IllegalStateException exception) {
-                        System.out.println("You entered a wrong character by mistake. Enter a character from the menu");
-                        throw new RuntimeException();
-                    }
-                });
-        if (choice == 'N') {
-            String name = scannerWrapper.getUserInput("enter name:", Function.identity());
-            return name;
-        } else if (choice == 'I') {
-            int id = scannerWrapper.getUserInput("enter id: ", Integer::valueOf);
-            return id;
-        } else {
-            throw new InvalidParameterException();
+    public Integer getAccountDetailForSelection() throws InvalidParameterException {
+        return scannerWrapper.getUserInput("enter id: ", Integer::valueOf);
         }
-    }
 
     //=========== File and saving related methods ===========
     public DocFile getFileTypeFromUser() {

@@ -16,7 +16,7 @@ import java.util.List;
 
 public interface IAccountService {
     void addAccount(Account account) throws DuplicateAccountException, ClientNotFoundException;
-    Account getAccountById(int id) throws AccountNotFoundException;
+    Account getAccountById(Integer id) throws AccountNotFoundException;
     void updateAccount(int id, Account newAccount) throws AccountNotFoundException;
     void deleteAccount(int id) throws AccountNotFoundException;
     List<Account> getAllActiveAccounts() throws EmptyAccountException;
@@ -25,7 +25,6 @@ public interface IAccountService {
     void saveOnExit();
     void addData(String name) throws FileException, FileNotFoundException;
     void loadData(DocFile file) throws FileNotFoundException;
-    <T> AccountDto getAccountByDetail(T accountDetail) throws AccountNotFoundException;
     List<Account> getAccountByClientId(Integer id) ;
     void deposit(int accountId, BigDecimal amount) throws AccountNotFoundException;
     void withdraw(int accountId, BigDecimal amount) throws AccountNotFoundException, ValidationException;

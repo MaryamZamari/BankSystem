@@ -34,14 +34,14 @@ public class ClientConsole extends BaseConsole {
                 "0.Back to Bank menu \n" +
                 "1.Add a new client.\n" +
                 "2.Search a client \n" +
-                "3.Edit a client\n" +
-                "4.Removing a client \n" +
+                "3.Edit a client\n" +     //TODO: at the moment, editing the client forces you to add all the data from the beginig. it is better to choose what they want to modify and then change only that.
+                "4.Removing a client \n" +                      //TODO: check and test again
                 "5.Printing all the Clients.\n" +
-                "6.Print all the deleted clients.\n" +
-                "7.Print all accounts of the client.\n" +
-                "8.Save data.\n" +
-                "9.Load data.\n" +
-                "10.Add data.\n"
+                "6.Print all the deleted clients.\n" +       //TODO: check and test again
+                "7.Print all accounts of the client.\n" +   //TODO: i'm not sure if it is done or not.
+                "8.Save data.\n" +               //TODO: check and test again
+                "9.Load data.\n" +              //TODO: check and test again
+                "10.Add data.\n"                //TODO: i'm not sure if it is done or not.
         );
     }
 

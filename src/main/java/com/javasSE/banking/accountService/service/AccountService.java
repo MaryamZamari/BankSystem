@@ -47,37 +47,38 @@ public class AccountService implements IAccountService{
     @Override
     public void addAccount(Account account) throws DuplicateAccountException {
         accountList.add(account);
+        System.out.println("Account id: " + account.getId() +
+                " account added with these informations: \n" +
+                account.toString()); //TODO: the information gets collected from the user correctly, but not added correctly.
     }
 
-    @Override
-    public <T> AccountDto getAccountByDetail(T accountDetail) throws AccountNotFoundException {
-        return null; //TODO: implement later
-    }
 
     @Override
     public List<Account> getAccountByClientId(Integer id){
-        List<Account> accounts =  accountList.stream()
+
+        return accountList.stream()
                 .filter(account -> !account.getDeleted())
                 .filter(account -> account.getClientId().equals(id))
                 .collect(Collectors.toList());
-
-        return accounts;
     }
 
     @Override
-    public Account getAccountById(int id) throws AccountNotFoundException {
+    public Account getAccountById(Integer id) throws AccountNotFoundException {
         Optional<Account> account= accountList.stream()
                 .filter(x -> !x.getDeleted())
                 .filter(x -> x.getId().equals(id)).findFirst();
-        return account.orElseThrow(() -> new AccountNotFoundException());
+        if(!account.isEmpty()) {
+            System.out.println("The searched account is: " + account.toString());
+        }
+        return account.orElseThrow(AccountNotFoundException::new);
     }
 
     @Override
-    public void updateAccount(int id, Account newAccount) throws AccountNotFoundException {
+    public void updateAccount(int accountId, Account newAccount) throws AccountNotFoundException {
         Optional<Account> account = accountList.stream()
                 .filter(x -> !x.getDeleted())
-                .filter(x -> x.getId().equals(id)).findFirst();
-        if(!account.isPresent()){
+                .filter(x -> x.getId().equals(accountId)).findFirst();
+        if(account.isEmpty()){
             throw new AccountNotFoundException();
         }
     }
@@ -97,7 +98,7 @@ public class AccountService implements IAccountService{
     @Override
     public List<Account> getAllDeletedAccounts() {
         return accountList.stream()
-                .filter(x -> x.getDeleted()).collect(Collectors.toList());
+                .filter(Account::getDeleted).collect(Collectors.toList());
     }
 
     @Override

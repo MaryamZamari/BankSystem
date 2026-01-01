@@ -40,6 +40,7 @@ public class ClientService implements IClientService {
     public static List<Client> getClientList() {
         return clientList;
     }
+
     @Override
     public void addClient(Client client) throws DuplicateClientException {
         Optional<Client> duplicateClient = clientList.stream()
@@ -52,10 +53,15 @@ public class ClientService implements IClientService {
         clientList.add(client);
         System.out.println("Client id: " + client.getId());
     }
+
     private static Predicate<Client> isDuplicate(Client client) {
-        return x -> x.getName().equals(client.getName()) &&
-                (isPersonalDuplicate(client, (PersonalClient) x) ||
-                        isLegalDuplicate(client, (LegalClient) x));
+        return x -> {
+            if (!x.getName().equals(client.getName())) return false;
+            if (!isPersonalDuplicate(client, (PersonalClient) x)) {
+                isLegalDuplicate(client, (LegalClient) x);
+            }
+            return true;
+        };
     }
 
     private static boolean isLegalDuplicate(Client client, LegalClient x) {
@@ -81,7 +87,7 @@ public class ClientService implements IClientService {
     @Override
     public Client getClientById(int clientId) {
         Stream<Client> client = getClientList().stream()
-                .filter((x) -> x.isDeleted() == false)
+                .filter((x) -> !x.isDeleted())
                 .filter(x -> x.getId().equals(clientId));
         return client.findFirst().orElseThrow(() ->
                 new NoSuchElementException("there is no client with the Id " + clientId));
@@ -89,7 +95,7 @@ public class ClientService implements IClientService {
     @Override
     public Client getClientByName(String clientName) {
         Optional<Client> optionalClient = getClientList().stream()
-                .filter((x) -> x.isDeleted() == false)
+                .filter((x) -> !x.isDeleted())
                 .filter(x -> x.getName().equalsIgnoreCase(clientName)).findFirst();
         return optionalClient.orElseThrow(() ->
                 new NoSuchElementException("there is no client with the Name " + clientName));
@@ -97,7 +103,7 @@ public class ClientService implements IClientService {
     @Override
     public void updateClientList(int clientId, Client newClient) {
         Client c = getClientList().stream()
-                        .filter((x) -> x.isDeleted() == false)
+                        .filter((x) -> !x.isDeleted())
                         .filter(x -> x.getId() == clientId)
                         .findFirst().orElseThrow(() ->
                         new NoSuchElementException("The client with the Id"
@@ -124,7 +130,7 @@ public class ClientService implements IClientService {
     @Override
     public List<Client> getAllDeletedClients() {
         return getClientList().stream()
-                .filter(x -> x.isDeleted())
+                .filter(Client::isDeleted)
                 .collect(Collectors.toList());
     }
 

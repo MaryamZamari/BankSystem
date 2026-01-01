@@ -11,9 +11,7 @@ import java.math.BigDecimal;
 @ToString
 @AllArgsConstructor
 public class AccountDto {
-    private Integer Id;
     private String name;
-    private String accountNumber;
     private AccountType type;
     private BigDecimal balance;
     private Integer clientId;

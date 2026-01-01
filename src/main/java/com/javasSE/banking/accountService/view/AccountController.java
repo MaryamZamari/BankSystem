@@ -49,19 +49,19 @@ public class AccountController {
                         addAccount(newAccount);
                         break;
                     case 2:
-                        Object accountDetailToSearch = null;
+                        int id= 0;
                         try {
-                            accountDetailToSearch = view.getAccountDetailForSelection();
+                            id = view.getIdFromUser();
                         } catch (InvalidParameterException exception) {
-                            System.out.println("you typed the wrong characters. revise your choice to select the client!");
+                            System.out.println("you typed the wrong character. you need to type a number for account ID.");
                         }
-                        searchAccount(accountDetailToSearch);
+                        searchAccount(id);
                         break;
                     case 3:
                         int accountId = view.getIdFromUser();
                         AccountDto oldAccount = accountFacade.getAccountById(accountId);
                         AccountDto updatedAccount = view.getAccountDetailsFromUserForEdit(oldAccount);
-                        updateAccount(updatedAccount);
+                        updateAccount(accountId , updatedAccount);
                         break;
                     case 4:
                         accountId = view.getIdFromUser();
@@ -120,8 +120,8 @@ public class AccountController {
     private void deposit() throws AccountNotFoundException {
         view.deposit();
     }
-    private void searchAccount(Object accountDetailToSearch) throws AccountNotFoundException {
-        accountFacade.getAccountByDetails(accountDetailToSearch); //TODO: check how you did it for client?
+    private void searchAccount(int id) throws AccountNotFoundException {
+        accountFacade.getAccountById(id); //TODO: check how you did it for client?
     }
 
     private void printAllDeletedAccounts() throws EmptyAccountException {
@@ -146,8 +146,8 @@ public class AccountController {
     }
     public void initData() {
     }
-    private void updateAccount(AccountDto updatedAccount) throws ValidationException, AccountNotFoundException {
-        accountFacade.updateAccount(updatedAccount);
+    private void updateAccount(int accountId , AccountDto updatedAccount) throws ValidationException, AccountNotFoundException {
+        accountFacade.updateAccount(accountId, updatedAccount);
     }
     private void addAccount(AccountDto newAccount) throws DuplicateAccountException, ClientNotFoundException {
         accountFacade.addAccount(newAccount);

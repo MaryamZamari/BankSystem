@@ -87,6 +87,7 @@
                 </executions>
                 <configuration>
                     <mainClass>com.javaSE.banking.ApplicationRunner</mainClass>
+                    <classpathScope>runtime</classpathScope>
                 </configuration>
             </plugin>
         </plugins>
