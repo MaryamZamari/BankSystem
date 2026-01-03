@@ -48,8 +48,8 @@ public class AccountService implements IAccountService{
     public void addAccount(Account account) throws DuplicateAccountException {
         accountList.add(account);
         System.out.println("Account id: " + account.getId() +
-                " account added with these informations: \n" +
-                account.toString()); //TODO: the information gets collected from the user correctly, but not added correctly.
+                ". account added with these informations: \n" +
+                account.toString());
     }
 
 

@@ -54,7 +54,7 @@ public class AccountFacade implements IAccountFacade {
     public void updateAccount(int accountId , AccountDto accountDto) throws AccountNotFoundException, ValidationException {
         accountValidation.validate(accountDto);
         Account account= accountService.getAccountById(accountId);
-        mapStruct.mapToAccount(accountDto, account);
+        mapStruct.mapToAccountForUpdate(accountDto, account);
     }
 
     @Override

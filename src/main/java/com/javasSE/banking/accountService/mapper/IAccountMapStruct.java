@@ -9,12 +9,18 @@ import java.util.List;
 
 @Mapper
 public interface IAccountMapStruct {
+
     AccountDto mapToAccountDto(Account account);
+
     @Mapping(ignore= true, target="id")
     Account mapToAccount(AccountDto accountDto);
+
     @Mapping(ignore= true, target= "id")
-    Account mapToAccount(AccountDto accountDto, @MappingTarget Account account);
+    Account mapToAccountForUpdate(AccountDto accountDto, @MappingTarget Account account);
+
     List<AccountDto> mapToAccountDtoList(List<Account> accountList);
+
+    @Mapping(ignore= true, target= "id")
     List<Account> mapToAccountList(List<AccountDto> accountDtoList);
 
 }

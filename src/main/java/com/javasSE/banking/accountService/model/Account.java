@@ -9,25 +9,35 @@ import java.math.BigDecimal;
 @Data
 public class Account implements Serializable {
     @Setter(AccessLevel.NONE)
-    private Integer Id;
+    private Integer id;
+    private String name;
     private AccountType currency;
     private BigDecimal balance;
     private Integer clientId;
     private Boolean deleted;
 
-    public Account(Integer id, AccountType currency,
-                   BigDecimal balance, Integer clientId, Boolean deleted) {
-        Id = IdGeneratorUtil.generateUniqueAccountId();
+    public Account(String name, AccountType currency,
+                   BigDecimal balance, Integer clientId) {
+        this.id = IdGeneratorUtil.generateUniqueAccountId();
+        this.name = name;
         this.currency = currency;
-        this.balance = BigDecimal.ZERO;
+        this.balance = balance;
         this.clientId = clientId;
         this.deleted = false;
     }
+
+    public Account() { //noArgs constructor because MapStruct uses this by default.
+        this.id = IdGeneratorUtil.generateUniqueAccountId();;
+        this.deleted = false;
+    }
+
     @Override
     public boolean equals(Object obj) {
         return obj instanceof Account &&
                 ((((Account) obj).getId())).equals(getId() );
    }
+
+
 
 }
 
