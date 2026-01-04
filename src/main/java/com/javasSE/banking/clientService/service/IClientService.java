@@ -17,7 +17,6 @@ public interface IClientService {
     void updateClientList(int clientId, Client newClient);
     void deleteClientById(int cliendId);
     void saveData(DocFile file) throws FileException;
-    void loadData(FileType type) throws FileException, FileNotFoundException;
     void initData();
     void saveOnExit() throws FileException;
     void addData(String name) throws FileNotFoundException;

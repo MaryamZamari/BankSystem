@@ -18,8 +18,9 @@ public interface IClientFacade {
     void updateClient(int id, ClientDto newClient) throws ValidationException, ClientNotFoundException;
     void deleteClientById(int cliendId)throws ClientNotFoundException;
     List<ClientDto> getAllClients();
+
     void saveData(DocFile file) throws FileException;
-    void loadData(FileType type) throws FileException, FileNotFoundException;
+    void loadData(DocFile type) throws FileException, FileNotFoundException;
     void initData();
     void saveOnExit();
     void addData(String name) throws FileNotFoundException;

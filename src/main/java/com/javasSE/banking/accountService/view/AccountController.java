@@ -5,6 +5,7 @@ import com.javasSE.banking.accountService.exception.TransactionUnsuccessfulExcep
 import com.javasSE.banking.clientService.clientException.ClientNotFoundException;
 import com.javasSE.banking.common.model.DocFile;
 import com.javasSE.banking.common.model.FileType;
+import com.javasSE.banking.common.utility.FileIOUtil;
 import com.javasSE.banking.common.utility.ScannerWrapperUtil;
 import com.javasSE.banking.accountService.facade.AccountFacade;
 import com.javasSE.banking.accountService.facade.IAccountFacade;
@@ -22,10 +23,13 @@ public class AccountController {
     private final IAccountFacade accountFacade;
     private final ScannerWrapperUtil scannerWrapper;
     private final AccountConsole view;
+    private final FileIOUtil fileIO;
+
     private AccountController(){
         view = AccountConsole.getInstance();
         scannerWrapper = ScannerWrapperUtil.getInstance();
         accountFacade= AccountFacade.getInstance();
+        fileIO = FileIOUtil.getInstance();
     }
     static{
         INSTANCE= new AccountController();
@@ -76,11 +80,11 @@ public class AccountController {
                     case 7:
                         view.searchAccountByClientName();
                     case 8:
-                        DocFile file = view.getFileTypeFromUser();
+                        DocFile file = fileIO.getFileDetailsFromUser();
                         saveAccountData(file);
                         break;
                     case 9:
-                        file = view.getFileTypeFromUser();
+                        file = fileIO.getFileDetailsFromUser();
                         loadAccountData(file.getType());
                         break;
                     case 10:

@@ -12,6 +12,8 @@ import com.javasSE.banking.clientService.model.Client;
 import com.javasSE.banking.clientService.model.LegalClient;
 import com.javasSE.banking.clientService.model.PersonalClient;
 import com.javasSE.banking.common.exception.FileException;
+import com.javasSE.banking.common.utility.FileIOUtil;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,12 +27,14 @@ public class ClientService implements IClientService {
     private final IClientFacade clientFacade;
     private static final ClientService INSTANCE;
     private final ObjectMapper objectMapper;
+    private final FileIOUtil fileIO;
     private static List<Client> clientList;
     static {
         INSTANCE = new ClientService();
     }
     private ClientService(){
         objectMapper = new ObjectMapper();
+        fileIO = FileIOUtil.getInstance();
         clientFacade= ClientFacade.getInstance();
         clientList = new ArrayList<>();
     }
@@ -128,6 +132,11 @@ public class ClientService implements IClientService {
     }
 
     @Override
+    public void loadData(DocFile file) throws FileNotFoundException {
+        fileIO.loadData(file);
+    }
+
+    @Override
     public List<Client> getAllDeletedClients() {
         return getClientList().stream()
                 .filter(Client::isDeleted)
@@ -139,100 +148,28 @@ public class ClientService implements IClientService {
         FileType type= file.getType();
         String fileName= file.getName();
         switch (type){
-            case SERIALISED -> saveSerialised(fileName);
-            case JSON -> saveJson(fileName);
+            case SERIALISED -> fileIO.saveSerialised(fileName);
+            case JSON -> fileIO.saveJson(fileName);
         }
-    }
-
-    @Override
-    public void loadData(FileType type) throws FileException, FileNotFoundException {
-
     }
 
     @Override
     public void initData() {
         try{
-            loadJson("initData");
+            fileIO.loadJson("initData");
         } catch(FileNotFoundException ignored){
         }
     }
 
     @Override
     public void saveOnExit(){
-        saveJson("initData");
+
     }
 
     @Override
-    public void addData(String fileName) throws FileNotFoundException {
-        try{
-            clientList= objectMapper.readValue(new File(fileName + ".jason"),
-                    new TypeReference<List<Client>>() { });
-        } catch (FileNotFoundException exception){
-            throw new FileNotFoundException();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public void addData(String name) throws FileNotFoundException {
+        fileIO.addData(name);
     }
 
-    private void saveJson(String fileName) {
-          try{
-            File file= new File(fileName + ".json");
-            if(!file.exists()){
-                file.createNewFile();
-            }
-            objectMapper.writeValue(file, clientList);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void saveSerialised(String fileName) throws FileException {
-        try{
-            File file= new File(fileName + ".crm");
-            if(!file.exists()){
-                file.createNewFile();
-            }
-            try(FileOutputStream fileOutputStream = new FileOutputStream(file);
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);){
-                objectOutputStream.writeObject(clientList);
-            }
-        }catch(IOException exception){
-            throw new FileException();
-        }
-    }
-
-    @Override
-    public void loadData(DocFile file) throws FileNotFoundException {
-        FileType type= file.getType();
-        String fileName= file.getName();
-        switch (type){
-            case SERIALISED -> loadSerialised(fileName);
-            case JSON -> loadJson(fileName);
-        }
-    }
-
-    private void loadJson(String fileName) throws FileNotFoundException {
-        try{
-            clientList= objectMapper.readValue(new File(fileName + ".jason"),
-                    new TypeReference<List<Client>>() { }); //to give it a more specific object
-        } catch (FileNotFoundException exception){
-            throw new FileNotFoundException();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void loadSerialised(String fileName) throws FileNotFoundException {
-        try(FileInputStream fileInputStream = new FileInputStream(fileName)){
-            ObjectInputStream objectInputStream= new ObjectInputStream(fileInputStream);
-            clientList= (List<Client>) objectInputStream.readObject();
-        } catch (FileNotFoundException exception){
-            throw new FileNotFoundException();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
 }

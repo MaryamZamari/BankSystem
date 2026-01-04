@@ -17,6 +17,7 @@ public class ScannerWrapperUtil implements AutoCloseable{
     private ScannerWrapperUtil(){
         scanner= new Scanner(System.in);
     }
+
     public <T> T getUserInput(String message, Function<String, T> converter) {
         System.out.println(message);
         T input;

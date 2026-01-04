@@ -5,9 +5,7 @@ import com.javasSE.banking.accountService.exception.AccountNotFoundException;
 import com.javasSE.banking.accountService.exception.TransactionUnsuccessfulException;
 import com.javasSE.banking.accountService.model.AccountType;
 import com.javasSE.banking.common.exception.ValidationException;
-import com.javasSE.banking.common.model.DocFile;
-import com.javasSE.banking.common.model.FileType;
-import com.javasSE.banking.common.utility.IdGeneratorUtil;
+import com.javasSE.banking.common.utility.FileIOUtil;
 import com.javasSE.banking.common.view.BaseConsole;
 
 import java.math.BigDecimal;
@@ -18,10 +16,13 @@ import java.util.function.Function;
 
 public class AccountConsole extends BaseConsole {
     private static final AccountConsole INSTANCE;
+    private FileIOUtil fileIO;
 
     private AccountConsole() {
         super();
+        fileIO = FileIOUtil.getInstance();
     }
+
 
     static {
         INSTANCE = new AccountConsole();
@@ -55,7 +56,7 @@ public class AccountConsole extends BaseConsole {
 
     public AccountDto getAccountDetailsFromUser() throws ParseException {
         AccountDto newAccount = null;
-        char accountType = scannerWrapper.getUserInput("what type of account? " +
+        char currency = scannerWrapper.getUserInput("what type of account? " +
                         "E: Euro,  " +
                         "D: Dollar. ",
                 x -> {
@@ -66,15 +67,15 @@ public class AccountConsole extends BaseConsole {
                         throw new RuntimeException();
                     }
                 });
-        AccountType type = switch (accountType) {
+        AccountType accountCurrency = switch (currency) {
             case 'E' -> AccountType.EURO;
             case 'D' -> AccountType.DOLLAR;
-            default -> throw new IllegalStateException("Unexpected value: " + accountType);
+            default -> throw new IllegalStateException("Unexpected value: " + currency);
         };
         String name = scannerWrapper.getUserInput("enter account name: ", Function.identity());
         BigDecimal balance = scannerWrapper.getUserInput("Enter balance: ", BigDecimal::new);
         int clientId = scannerWrapper.getUserInput("Enter client id: ", Integer::valueOf);
-        newAccount = new AccountDto(name, type, balance, clientId);
+        newAccount = new AccountDto(name, accountCurrency, balance, clientId);
         System.out.println("accountDto received from user: " + newAccount.toString());
         return newAccount;
     }
@@ -87,37 +88,10 @@ public class AccountConsole extends BaseConsole {
         return scannerWrapper.getUserInput("enter id: ", Integer::valueOf);
         }
 
-    //=========== File and saving related methods ===========
-    public DocFile getFileTypeFromUser() {
-        DocFile file;
-        char type = scannerWrapper.getUserInput("what type of File? " +
-                "S: Serialised,  " +
-                "J: JSON. ",
-                x -> {
-                    try{
-                        return x.toUpperCase().charAt(0);
-                    }catch(IllegalStateException exception){
-                        System.out.println("You entered a wrong character by mistake, Enter a character from the menu");
-                        throw new RuntimeException();
-                    }
-                });
-        String fileName = scannerWrapper.getUserInput("Enter the name of the file: ", Function.identity());
-        FileType fileType = switch (type) {
-            case 'S' -> FileType.SERIALISED;
-            case 'J' -> FileType.JSON;
-            default -> throw new IllegalStateException("Unexpected value: " + type);
-        };
-        file = new DocFile(fileName, fileType);
-        return file;
-    }
 
-    public String getFileNameFromUser() {
-        String fileName = scannerWrapper.getUserInput("Enter the name of the file: ", Function.identity());
-        return fileName;
-    }
 
     public void addData() {
-        String fileName = scannerWrapper.getUserInput("Enter the name of the JSON file: ", Function.identity());
+        String fileName = fileIO.getFileNameFromUser();
         clientFacade.addData(fileName);
     }
 
@@ -129,9 +103,7 @@ public class AccountConsole extends BaseConsole {
         accountFacade.saveOnExit();
     }
 
-    //===========End of File and saving related methods ===========
-
-    public AccountDto getAccountDetailsFromUserForEdit(AccountDto oldAccount) {
+      public AccountDto getAccountDetailsFromUserForEdit(AccountDto oldAccount) {
         //TODO: implement getAccountDetailsFromUserForEdit
         return null;
     }

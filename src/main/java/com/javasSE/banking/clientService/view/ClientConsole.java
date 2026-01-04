@@ -1,9 +1,7 @@
 package com.javasSE.banking.clientService.view;
 
-import com.javasSE.banking.common.model.FileType;
 import com.javasSE.banking.clientService.dto.ClientDto;
 import com.javasSE.banking.clientService.model.ClientType;
-import com.javasSE.banking.common.model.DocFile;
 import com.javasSE.banking.common.exception.ValidationException;
 import com.javasSE.banking.common.view.BaseConsole;
 
@@ -131,39 +129,10 @@ public class ClientConsole extends BaseConsole {
         return scannerWrapper.getUserInput("enter new number: \n", Function.identity());
     }
 
-    public DocFile getFileTypeFromUser() {
-        DocFile file;
-        char type = scannerWrapper.getUserInput("what type of File? " +
-                        "S: Serialised,  " +
-                        "J: JSON. ",
-                x -> {
-                    try {
-                        return x.toUpperCase().charAt(0);
-                    } catch (IllegalStateException exception) {
-                        System.out.println("You entered a wrong character by mistake, Enter a character from the menu");
-                        throw new RuntimeException();
-                    }
-                });
-        String fileName = scannerWrapper.getUserInput("Enter the name of the file: ", Function.identity());
-        FileType fileType = switch (type) {
-            case 'S' -> FileType.SERIALISED;
-            case 'J' -> FileType.JSON;
-            default -> throw new IllegalStateException("Unexpected value: " + type); //TODO: remove this
-        };
-        file = new DocFile(fileName, fileType);
-        return file;
-    }
 
-
-    public String getFileNameFromUser() {
-        String fileName = scannerWrapper
-                .getUserInput("Enter the name of the file: ", Function.identity());
-        return fileName;
-    }
 
     public void addData() {
-        String fileName = scannerWrapper
-                .getUserInput("Enter the name of the JSON file: ", Function.identity());
+        String fileName = fileIO.getFileNameFromUser();
         clientFacade.addData(fileName);
     }
 
