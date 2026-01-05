@@ -3,7 +3,6 @@ package com.javasSE.banking.accountService.view;
 import com.javasSE.banking.accountService.dto.AccountDto;
 import com.javasSE.banking.accountService.exception.AccountNotFoundException;
 import com.javasSE.banking.accountService.exception.TransactionUnsuccessfulException;
-import com.javasSE.banking.accountService.model.AccountType;
 import com.javasSE.banking.common.exception.ValidationException;
 import com.javasSE.banking.common.utility.FileIOUtil;
 import com.javasSE.banking.common.view.BaseConsole;
@@ -11,6 +10,7 @@ import com.javasSE.banking.common.view.BaseConsole;
 import java.math.BigDecimal;
 import java.security.InvalidParameterException;
 import java.text.ParseException;
+import java.util.Currency;
 import java.util.List;
 import java.util.function.Function;
 
@@ -67,9 +67,9 @@ public class AccountConsole extends BaseConsole {
                         throw new RuntimeException();
                     }
                 });
-        AccountType accountCurrency = switch (currency) {
-            case 'E' -> AccountType.EURO;
-            case 'D' -> AccountType.DOLLAR;
+        Currency accountCurrency = switch (currency) {
+            case 'E' -> Currency.getInstance("EUR");
+            case 'D' -> Currency.getInstance("USD");
             default -> throw new IllegalStateException("Unexpected value: " + currency);
         };
         String name = scannerWrapper.getUserInput("enter account name: ", Function.identity());

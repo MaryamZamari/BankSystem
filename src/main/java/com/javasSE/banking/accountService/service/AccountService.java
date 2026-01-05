@@ -2,7 +2,6 @@ package com.javasSE.banking.accountService.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.javasSE.banking.accountService.dto.AccountDto;
 import com.javasSE.banking.accountService.exception.AccountNotFoundException;
 import com.javasSE.banking.accountService.exception.DuplicateAccountException;
 import com.javasSE.banking.common.model.DocFile;
@@ -15,12 +14,12 @@ import com.javasSE.banking.conversionService.model.*;
 import com.javasSE.banking.conversionService.service.ConversionService;
 import com.javasSE.banking.conversionService.service.TransactionLogger;
 import com.javasSE.banking.accountService.model.Account;
-import com.javasSE.banking.accountService.model.AccountType;
 import com.javasSE.banking.common.exception.FileException;
 import com.javasSE.banking.common.exception.ValidationException;
 import java.io.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -215,12 +214,12 @@ public class AccountService implements IAccountService{
         try {
             Account sourceAccount = getAccountById(sourceAccountId);
             Account destAccount = getAccountById(desAccountId);
-            AccountType sourceType = sourceAccount.getCurrency();
-            AccountType destType = destAccount.getCurrency();
+            Currency sourceType = sourceAccount.getCurrency();
+            Currency destType = destAccount.getCurrency();
             TransactionIdPair idPair = new TransactionIdPair(sourceAccountId , desAccountId);
             CurrencyPair currencyPair = new CurrencyPair(
-                    CurrencyType.valueOf(sourceType.name()) ,
-                    CurrencyType.valueOf(destType.name())
+                    CurrencyType.valueOf(sourceType.getCurrencyCode()) ,
+                    CurrencyType.valueOf(destType.getCurrencyCode())
             );
             Transaction transaction = conversionService.createTransaction(idPair , currencyPair , amount);
             transactionLogger.logTransaction(transaction);
