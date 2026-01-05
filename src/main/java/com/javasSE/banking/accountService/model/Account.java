@@ -5,18 +5,19 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Currency;
 
 @Data
 public class Account implements Serializable {
     @Setter(AccessLevel.NONE)
     private Integer id;
     private String name;
-    private AccountType currency;
+    private Currency currency;
     private BigDecimal balance;
     private Integer clientId;
     private Boolean deleted;
 
-    public Account(String name, AccountType currency,
+    public Account(String name, Currency currency,
                    BigDecimal balance, Integer clientId) {
         this.id = IdGeneratorUtil.generateUniqueAccountId();
         this.name = name;
