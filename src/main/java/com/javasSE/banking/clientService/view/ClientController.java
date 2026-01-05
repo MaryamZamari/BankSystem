@@ -1,7 +1,5 @@
 package com.javasSE.banking.clientService.view;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.javasSE.banking.clientService.model.Client;
 import com.javasSE.banking.common.model.FileType;
 import com.javasSE.banking.clientService.clientException.ClientNotFoundException;
 import com.javasSE.banking.clientService.dto.ClientDto;
@@ -11,6 +9,7 @@ import com.javasSE.banking.common.model.DocFile;
 import com.javasSE.banking.clientService.clientException.DuplicateClientException;
 import com.javasSE.banking.common.exception.FileException;
 import com.javasSE.banking.common.exception.ValidationException;
+import com.javasSE.banking.common.utility.FileIOUtil;
 import com.javasSE.banking.common.utility.ScannerWrapperUtil;
 import java.io.FileNotFoundException;
 import java.security.InvalidParameterException;
@@ -28,8 +27,10 @@ public class ClientController{
     private final IClientFacade clientFacade;
     private final ClientConsole view;
     private final ScannerWrapperUtil scannerWrapper;
+    private final FileIOUtil fileIO;
     private static final ClientController INSTANCE;
     private ClientController(){
+        fileIO = FileIOUtil.getInstance();
         scannerWrapper = ScannerWrapperUtil.getInstance();
         clientFacade = ClientFacade.getInstance();
         view = ClientConsole.getInstance();
@@ -82,15 +83,15 @@ public class ClientController{
                         printAllDeletedClients();
                         break;
                     case 7:
-                        System.out.println("Print accounts of client");
+                        System.out.println("Print accounts of client"); //TODO: print accounts of client
                         break;
                     case 8:
-                        DocFile file = view.getFileTypeFromUser();
+                        DocFile file = fileIO.getFileDetailsFromUser();
                         saveData(file);
                         break;
                     case 9:
-                        file= view.getFileTypeFromUser();
-                        loadData(file.getType());
+                        file= fileIO.getFileDetailsFromUser();
+                        loadData(file);
                         break;
                     case 10:
                         view.addData();
@@ -128,7 +129,7 @@ public class ClientController{
         clientFacade.saveOnExit();
     }
 
-    private void loadData(FileType type) throws FileException, FileNotFoundException {
+    private void loadData(DocFile type) throws FileException, FileNotFoundException {
         clientFacade.loadData(type);
         System.out.println("received a command to load the saved data into the system!");
     }

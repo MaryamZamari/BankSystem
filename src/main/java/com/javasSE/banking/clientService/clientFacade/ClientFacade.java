@@ -91,8 +91,9 @@ public class ClientFacade implements IClientFacade {
         clientService.saveData(file);
     }
 
+
     @Override
-    public void loadData(FileType type) throws FileException, FileNotFoundException {
+    public void loadData(DocFile type) throws FileException, FileNotFoundException {
         clientService.loadData(type);
     }
 
