@@ -2,6 +2,7 @@ package com.javasSE.banking.accountService.view;
 
 import com.javasSE.banking.accountService.dto.AccountDto;
 import com.javasSE.banking.accountService.exception.TransactionUnsuccessfulException;
+import com.javasSE.banking.accountService.model.Account;
 import com.javasSE.banking.clientService.clientException.ClientNotFoundException;
 import com.javasSE.banking.common.model.DocFile;
 import com.javasSE.banking.common.model.FileType;
@@ -15,6 +16,8 @@ import com.javasSE.banking.accountService.exception.EmptyAccountException;
 import com.javasSE.banking.common.exception.ValidationException;
 
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.Integer.parseInt;
 
@@ -64,7 +67,7 @@ public class AccountController {
                     case 3:
                         int accountId = view.getIdFromUser();
                         AccountDto oldAccount = accountFacade.getAccountById(accountId);
-                        AccountDto updatedAccount = view.getAccountDetailsFromUserForEdit(oldAccount);
+                        AccountDto updatedAccount = view.getAccountDetailsFromUserForEdit(oldAccount , accountId);
                         updateAccount(accountId , updatedAccount);
                         break;
                     case 4:
@@ -125,19 +128,37 @@ public class AccountController {
         view.deposit();
     }
     private void searchAccount(int id) throws AccountNotFoundException {
-        accountFacade.getAccountById(id); //TODO: check how you did it for client?
+        AccountDto account = accountFacade.getAccountById(id);
+        if(account != null){
+            System.out.println(" The searched account: \n" + account);
+        }else{
+            System.out.println("No account with id ! " + id + " was found!");
+        }
     }
 
     private void printAllDeletedAccounts() throws EmptyAccountException {
-        accountFacade.getAllDeletedAccounts();
+        List<AccountDto> accounts = accountFacade.getAllDeletedAccounts();
+        if(accounts != null && !accounts.isEmpty()){
+            System.out.println(" All deleted accounts: \n");
+            accounts.forEach(System.out::println);
+        }else{
+            System.out.println("No deleted accounts found!");
+        }
     }
 
     private void printAllAccounts() throws EmptyAccountException {
-        accountFacade.getAllActiveAccounts();
+        List<AccountDto> accounts = accountFacade.getAllActiveAccounts();
+        if(accounts != null && !accounts.isEmpty()){
+            System.out.println(" All active accounts: \n");
+            accounts.forEach(System.out::println);
+        }else{
+            System.out.println("No active accounts found!");
+        }
     }
 
     private void deleteAccount(int accountId) throws AccountNotFoundException {
         accountFacade.deleteAccount(accountId);
+        System.out.println("account with id " + accountId + " is deleted!");
     }
     private void saveAccountData(DocFile file) {
         accountFacade.saveAccountData(file);
@@ -151,8 +172,10 @@ public class AccountController {
     public void initData() {
     }
     private void updateAccount(int accountId , AccountDto updatedAccount) throws ValidationException, AccountNotFoundException {
-        accountFacade.updateAccount(accountId, updatedAccount);
+        Account updated = accountFacade.updateAccount(accountId, updatedAccount);
+        System.out.println("Account updated, the new information is as follows: \n" + updated);
     }
+
     private void addAccount(AccountDto newAccount) throws DuplicateAccountException, ClientNotFoundException {
         accountFacade.addAccount(newAccount);
     }

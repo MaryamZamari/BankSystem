@@ -17,7 +17,6 @@ import java.util.List;
 public interface IAccountService {
     void addAccount(Account account) throws DuplicateAccountException, ClientNotFoundException;
     Account getAccountById(Integer id) throws AccountNotFoundException;
-    void updateAccount(int id, Account newAccount) throws AccountNotFoundException;
     void deleteAccount(int id) throws AccountNotFoundException;
     List<Account> getAllActiveAccounts() throws EmptyAccountException;
     List<Account> getAllDeletedAccounts() throws EmptyAccountException;

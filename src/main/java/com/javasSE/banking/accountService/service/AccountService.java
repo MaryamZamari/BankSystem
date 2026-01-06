@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javasSE.banking.accountService.exception.AccountNotFoundException;
 import com.javasSE.banking.accountService.exception.DuplicateAccountException;
+import com.javasSE.banking.accountService.facade.IAccountFacade;
 import com.javasSE.banking.common.model.DocFile;
 import com.javasSE.banking.common.model.FileType;
 import com.javasSE.banking.common.utility.MapperWrapper;
@@ -54,7 +55,6 @@ public class AccountService implements IAccountService{
 
     @Override
     public List<Account> getAccountByClientId(Integer id){
-
         return accountList.stream()
                 .filter(account -> !account.getDeleted())
                 .filter(account -> account.getClientId().equals(id))
@@ -63,24 +63,20 @@ public class AccountService implements IAccountService{
 
     @Override
     public Account getAccountById(Integer id) throws AccountNotFoundException {
-        Optional<Account> account= accountList.stream()
-                .filter(x -> !x.getDeleted())
-                .filter(x -> x.getId().equals(id)).findFirst();
+        Optional<Account> account = getAccount(id);
         if(!account.isEmpty()) {
             System.out.println("The searched account is: " + account.toString());
         }
         return account.orElseThrow(AccountNotFoundException::new);
     }
 
-    @Override
-    public void updateAccount(int accountId, Account newAccount) throws AccountNotFoundException {
-        Optional<Account> account = accountList.stream()
+    private static Optional<Account> getAccount(Integer id) {
+        Optional<Account> account= accountList.stream()
                 .filter(x -> !x.getDeleted())
-                .filter(x -> x.getId().equals(accountId)).findFirst();
-        if(account.isEmpty()){
-            throw new AccountNotFoundException();
-        }
+                .filter(x -> x.getId().equals(id)).findFirst();
+        return account;
     }
+
 
     @Override
     public void deleteAccount(int id) throws AccountNotFoundException{

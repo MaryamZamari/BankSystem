@@ -16,7 +16,7 @@ public interface IAccountMapStruct {
     Account mapToAccount(AccountDto accountDto);
 
     @Mapping(ignore= true, target= "id")
-    Account mapToAccountForUpdate(AccountDto accountDto, @MappingTarget Account account);
+    Account mapToAccountForUpdate(AccountDto accountDto, @MappingTarget Account newAccount);
 
     List<AccountDto> mapToAccountDtoList(List<Account> accountList);
 

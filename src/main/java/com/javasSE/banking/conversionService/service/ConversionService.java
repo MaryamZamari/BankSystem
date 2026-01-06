@@ -252,7 +252,6 @@ public class ConversionService {
     //TODO: fix the null for Id
     //TODO: fix the files saving
     //TODO: delete the balance from entity
-    //TODO: print all accounts
     //TODO: check the clientId in account system.
     //TODO: don't use account number for identification or put a search for it
     //TODO: fix the account

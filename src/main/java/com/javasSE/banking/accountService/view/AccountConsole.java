@@ -39,17 +39,17 @@ public class AccountConsole extends BaseConsole {
                 "0.Exit\n" +
                 "1.Add a new account.\n" +
                 "2.Search an account \n" +
-                "3.Edit an account \n" +
+                "3.Edit an account \n" +                    //TODO: it performs the modification, but it anyway returns a validation error.
                 "4.Remove an account  \n" +
                 "5.Printing all the accounts.\n" +
                 "6.Printing all the deleted accounts.\n" +
-                "7.Search accounts by Client name.\n" +
-                "8.Save data.\n" +
-                "9.Load data.\n" +
-                "10.Add data.\n" +
-                "11.Deposit.\n" +
-                "12.Withdraw.\n" +
-                "13.Transact.\n"
+                "7.Search accounts by Client name.\n" +    //TODO: to test
+                "8.Save data.\n" +                          //TODO: to test and fix - at the moment no file gets added in hard disk
+                "9.Load data.\n" +                          //TODO: to implement and test
+                "10.Add data.\n" +                          //TODO: to implement and test
+                "11.Deposit.\n" +                           //TODO: to test
+                "12.Withdraw.\n" +                          //TODO: to test
+                "13.Transact.\n"                            //TODO: to test
         );
     }
 
@@ -74,7 +74,7 @@ public class AccountConsole extends BaseConsole {
         };
         String name = scannerWrapper.getUserInput("enter account name: ", Function.identity());
         BigDecimal balance = scannerWrapper.getUserInput("Enter balance: ", BigDecimal::new);
-        int clientId = scannerWrapper.getUserInput("Enter client id: ", Integer::valueOf);
+        int clientId = scannerWrapper.getUserInput("Enter client id: ", Integer::valueOf); //TODO: manage existence of client in DB. if there is no client with that id already registered, you should provoke the client system first.
         newAccount = new AccountDto(name, accountCurrency, balance, clientId);
         System.out.println("accountDto received from user: " + newAccount.toString());
         return newAccount;
@@ -103,9 +103,13 @@ public class AccountConsole extends BaseConsole {
         accountFacade.saveOnExit();
     }
 
-      public AccountDto getAccountDetailsFromUserForEdit(AccountDto oldAccount) {
-        //TODO: implement getAccountDetailsFromUserForEdit
-        return null;
+    public AccountDto getAccountDetailsFromUserForEdit(AccountDto oldAccountDto, int accountId) throws ValidationException, AccountNotFoundException {
+          String name = scannerWrapper.getUserInput("enter account name: ", Function.identity());
+          int clientId = scannerWrapper.getUserInput("Enter client id: ", Integer::valueOf);
+        oldAccountDto.setName(name);
+        oldAccountDto.setClientId(clientId);
+        accountFacade.updateAccount(accountId , oldAccountDto);
+        return oldAccountDto;
     }
 
     public void searchAccountByClientName() {

@@ -51,10 +51,11 @@ public class AccountFacade implements IAccountFacade {
     }
 
     @Override
-    public void updateAccount(int accountId , AccountDto accountDto) throws AccountNotFoundException, ValidationException {
+    public Account updateAccount(int accountId , AccountDto accountDto) throws AccountNotFoundException, ValidationException {
         accountValidation.validate(accountDto);
         Account account= accountService.getAccountById(accountId);
         mapStruct.mapToAccountForUpdate(accountDto, account);
+        return account;
     }
 
     @Override

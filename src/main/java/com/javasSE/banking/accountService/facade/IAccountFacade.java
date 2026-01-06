@@ -3,6 +3,7 @@ package com.javasSE.banking.accountService.facade;
 import com.javasSE.banking.accountService.dto.AccountDto;
 import com.javasSE.banking.accountService.exception.AccountNotFoundException;
 import com.javasSE.banking.accountService.exception.TransactionUnsuccessfulException;
+import com.javasSE.banking.accountService.model.Account;
 import com.javasSE.banking.clientService.clientException.ClientNotFoundException;
 import com.javasSE.banking.common.model.DocFile;
 import com.javasSE.banking.common.model.FileType;
@@ -16,7 +17,7 @@ import java.util.List;
 public interface IAccountFacade {
     void addAccount(AccountDto account) throws DuplicateAccountException, ClientNotFoundException;
     AccountDto getAccountById(int id) throws AccountNotFoundException;
-    void updateAccount(int accountId , AccountDto updatedDto) throws AccountNotFoundException, ValidationException;
+    Account updateAccount(int accountId , AccountDto updatedDto) throws AccountNotFoundException, ValidationException;
     void deleteAccount(int id) throws AccountNotFoundException;
     List<AccountDto> getAllActiveAccounts() throws EmptyAccountException;
     List<AccountDto> getAllDeletedAccounts() throws EmptyAccountException;
