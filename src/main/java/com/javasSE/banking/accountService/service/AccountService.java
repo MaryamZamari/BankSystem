@@ -1,13 +1,8 @@
 package com.javasSE.banking.accountService.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javasSE.banking.accountService.exception.AccountNotFoundException;
 import com.javasSE.banking.accountService.exception.DuplicateAccountException;
-import com.javasSE.banking.accountService.facade.IAccountFacade;
-import com.javasSE.banking.common.model.DocFile;
-import com.javasSE.banking.common.model.FileType;
-import com.javasSE.banking.common.utility.MapperWrapper;
+import com.javasSE.banking.common.utility.FileIOUtil;
 import com.javasSE.banking.conversionService.utility.ConversionRateCalculatorUtil;
 import com.javasSE.banking.conversionService.exception.ConversionNotSupportedException;
 import com.javasSE.banking.conversionService.exception.ConversionRateNotFoundException;
@@ -15,7 +10,6 @@ import com.javasSE.banking.conversionService.model.*;
 import com.javasSE.banking.conversionService.service.ConversionService;
 import com.javasSE.banking.conversionService.service.TransactionLogger;
 import com.javasSE.banking.accountService.model.Account;
-import com.javasSE.banking.common.exception.FileException;
 import com.javasSE.banking.common.exception.ValidationException;
 import java.io.*;
 import java.math.BigDecimal;
@@ -29,12 +23,12 @@ public class AccountService implements IAccountService{
     private static final AccountService INSTANCE;
     private final TransactionLogger transactionLogger;
     private final ConversionService conversionService;
-    private final ObjectMapper objectMapper;
+    private final FileIOUtil fileIO;
     private static List<Account> accountList;
     private AccountService(){
+        this.fileIO = FileIOUtil.getInstance();
         accountList= new ArrayList<>();
         conversionService = ConversionService.getInstance();
-        objectMapper= MapperWrapper.getInstance();
         transactionLogger = TransactionLogger.getInstance();
     }
     static{
@@ -99,88 +93,16 @@ public class AccountService implements IAccountService{
     @Override
     public void initData() {
         try{
-            loadJson("initAccountData");
+            fileIO.loadJson("initAccountData");
         } catch(FileNotFoundException ignored){
         }
     }
 
     @Override
     public void saveOnExit(){
-        saveJson("initAccountData");
+        fileIO.saveJson("initAccountData");
     }
 
-    @Override
-    public void addData(String fileName) throws FileNotFoundException {
-        try{
-            accountList = objectMapper.readValue(new File(fileName + ".jason"),
-                    new TypeReference<List<Account>>() { });
-        } catch (FileNotFoundException exception){
-            throw new FileNotFoundException();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void saveJson(String fileName) {
-        try{
-            File file= new File(fileName + ".json");
-            if(!file.exists()){
-                file.createNewFile();
-            }
-            objectMapper.writeValue(file, accountList);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void saveSerialised(String fileName) throws FileException {
-        try{
-            File file= new File(fileName + ".crm");
-            if(!file.exists()){
-                file.createNewFile();
-            }
-            try(FileOutputStream fileOutputStream = new FileOutputStream(file);
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);){
-                objectOutputStream.writeObject(accountList);
-            }
-        }catch(IOException exception){
-            throw new FileException();
-        }
-    }
-
-    @Override
-    public void loadData(DocFile file) throws FileNotFoundException {
-        FileType type= file.getType();
-        String fileName= file.getName();
-        switch (type){
-            case SERIALISED -> loadSerialised(fileName);
-            case JSON -> loadJson(fileName);
-        }
-    }
-
-    private void loadJson(String fileName) throws FileNotFoundException {
-        try{
-            accountList = objectMapper.readValue(new File(fileName + ".jason"),
-                    new TypeReference<List<Account>>() { }); //to give it a more specific object
-        } catch (FileNotFoundException exception){
-            throw new FileNotFoundException();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void loadSerialised(String fileName) throws FileNotFoundException {
-        try(FileInputStream fileInputStream = new FileInputStream(fileName)){
-            ObjectInputStream objectInputStream= new ObjectInputStream(fileInputStream);
-            accountList = (List<Account>) objectInputStream.readObject();
-        } catch (FileNotFoundException exception){
-            throw new FileNotFoundException();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     @Override
     public void deposit(int accountId, BigDecimal amount) throws AccountNotFoundException {

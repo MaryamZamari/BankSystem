@@ -22,8 +22,6 @@ public interface IAccountService {
     List<Account> getAllDeletedAccounts() throws EmptyAccountException;
     void initData();
     void saveOnExit();
-    void addData(String name) throws FileException, FileNotFoundException;
-    void loadData(DocFile file) throws FileNotFoundException;
     List<Account> getAccountByClientId(Integer id) ;
     void deposit(int accountId, BigDecimal amount) throws AccountNotFoundException;
     void withdraw(int accountId, BigDecimal amount) throws AccountNotFoundException, ValidationException;

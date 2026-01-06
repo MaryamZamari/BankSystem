@@ -121,7 +121,7 @@ public class FileIOUtil<T> {
 
     public void loadJson(String fileName) throws FileNotFoundException {
         try{
-            list= objectMapper.readValue(new File(fileName + ".jason"),
+            list= objectMapper.readValue(new File(fileName + ".json"),
                     new TypeReference<List<T>>() { }); //to give it a more specific object
         } catch (FileNotFoundException exception){
             throw new FileNotFoundException();
