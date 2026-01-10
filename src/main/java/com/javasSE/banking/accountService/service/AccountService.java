@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javasSE.banking.accountService.exception.AccountNotFoundException;
 import com.javasSE.banking.accountService.exception.DuplicateAccountException;
 import com.javasSE.banking.accountService.facade.IAccountFacade;
+import com.javasSE.banking.accountService.model.Amount;
 import com.javasSE.banking.common.model.DocFile;
 import com.javasSE.banking.common.model.FileType;
 import com.javasSE.banking.common.utility.MapperWrapper;
@@ -183,54 +184,60 @@ public class AccountService implements IAccountService{
     }
 
     @Override
-    public void deposit(int accountId, BigDecimal amount) throws AccountNotFoundException {
+    public void deposit(int accountId, Amount amountToDeposit) throws AccountNotFoundException {
         Account account = getAccountById(accountId);
-        account.getBalance().add(amount);
+        BigDecimal currentBalance = account.getBalance().getValue();
+        BigDecimal newBalance = currentBalance.add(amountToDeposit.getValue());
+        System.out.println("you deposited " + amountToDeposit + " " + amountToDeposit.getCurrency() + ". \n" +
+                "new balance is: " + newBalance);
     }
 
     @Override
-    public void withdraw(int accountId, BigDecimal amount) throws AccountNotFoundException , ValidationException {
+    public void withdraw(int accountId, Amount amountToWithdraw) throws AccountNotFoundException , ValidationException {
         Account account = getAccountById(accountId);
-        BigDecimal balance = account.getBalance();
-        boolean hasBalance = hasEnoughBalance(amount, balance);
+        BigDecimal currentBalance = account.getBalance().getValue();
+        boolean hasBalance = hasEnoughBalance(amountToWithdraw , currentBalance);
+        BigDecimal newBalance;
         if(hasBalance){
-            account.getBalance().subtract(amount);
+            newBalance = currentBalance.subtract(amountToWithdraw.getValue());
+            System.out.println("you withdrawed " + amountToWithdraw + " " + amountToWithdraw.getCurrency() + ". \n" +
+                                "new balance is: " + newBalance);
         }else{
-            throw new ValidationException("Balance is not enough");
+            throw new ValidationException("Balance is not enough! try to withdraw less amount. ");
         }
     }
 
-    private static boolean hasEnoughBalance(BigDecimal amount, BigDecimal balance) {
-        return (balance.compareTo(BigDecimal.ZERO) > 0) &&
-                (balance.compareTo(amount) >= 0);
+    private static boolean hasEnoughBalance(Amount amountToSubtract, BigDecimal sourceBalance) {
+        return (sourceBalance.compareTo(BigDecimal.ZERO) > 0) &&
+                (sourceBalance.compareTo(amountToSubtract.getValue()) >= 0);
     }
 
     @Override
-    public void transfer(int sourceAccountId, int desAccountId, BigDecimal amount) throws AccountNotFoundException, ValidationException {
+    public void transfer(int sourceAccountId, int desAccountId, Amount amountToTransfer) throws AccountNotFoundException, ValidationException {
         try {
             Account sourceAccount = getAccountById(sourceAccountId);
             Account destAccount = getAccountById(desAccountId);
-            Currency sourceType = sourceAccount.getCurrency();
-            Currency destType = destAccount.getCurrency();
+            Currency sourceType = sourceAccount.getBalance().getCurrency();
+            Currency destType = destAccount.getBalance().getCurrency();
             TransactionIdPair idPair = new TransactionIdPair(sourceAccountId , desAccountId);
             CurrencyPair currencyPair = new CurrencyPair(
                     CurrencyType.valueOf(sourceType.getCurrencyCode()) ,
                     CurrencyType.valueOf(destType.getCurrencyCode())
             );
-            Transaction transaction = conversionService.createTransaction(idPair , currencyPair , amount);
+            Transaction transaction = conversionService.createTransaction(idPair , currencyPair , amountToTransfer);
             transactionLogger.logTransaction(transaction);
             if(!sourceType.equals(destType)){
                 System.out.println("This operation needs Currency Conversion and will cost some service fee");
                 ConversionRate rate = ConversionRateCalculatorUtil.pickConversionRate(currencyPair);
                 conversionService.convert(transaction);
             }
-            BigDecimal sourceBalance = sourceAccount.getBalance();
-            boolean hasBalance = hasEnoughBalance(amount, sourceBalance);
+            BigDecimal sourceBalance = sourceAccount.getBalance().getValue();
+            boolean hasBalance = hasEnoughBalance(amountToTransfer, sourceBalance);
             if (hasBalance) {
-                sourceAccount.getBalance().subtract(amount);
-                destAccount.getBalance().add(amount);
+                sourceAccount.getBalance().getValue().subtract(amountToTransfer.getValue());
+                destAccount.getBalance().getValue().add(amountToTransfer.getValue());
             } else {
-                throw new ValidationException("Balance is not enough");
+                throw new ValidationException("Balance in the source account is not enough");
             }
         }catch (ConversionNotSupportedException e) {
             throw new RuntimeException("Conversion is not possible for the currencies");

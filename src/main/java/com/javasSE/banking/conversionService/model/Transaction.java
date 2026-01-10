@@ -1,5 +1,6 @@
 package com.javasSE.banking.conversionService.model;
 
+import com.javasSE.banking.accountService.model.Amount;
 import com.javasSE.banking.common.utility.IdGeneratorUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,7 +17,7 @@ public class Transaction {
     private CurrencyPair currencyPair;
     private ConversionRate conversionRate;
     private LocalDateTime timeStamp;
-    private BigDecimal amount;
+    private Amount amount;
 
 
 

@@ -12,16 +12,13 @@ public class Account implements Serializable {
     @Setter(AccessLevel.NONE)
     private Integer id;
     private String name;
-    private Currency currency;
-    private BigDecimal balance;
+    private Amount balance;
     private Integer clientId;
     private Boolean deleted;
 
-    public Account(String name, Currency currency,
-                   BigDecimal balance, Integer clientId) {
+    public Account(String name, Amount balance, Integer clientId) {
         this.id = IdGeneratorUtil.generateUniqueAccountId();
         this.name = name;
-        this.currency = currency;
         this.balance = balance;
         this.clientId = clientId;
         this.deleted = false;

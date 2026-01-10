@@ -1,9 +1,11 @@
 package com.javasSE.banking.accountService.facade;
 
 import com.javasSE.banking.accountService.dto.AccountDto;
+import com.javasSE.banking.accountService.dto.AmountDto;
 import com.javasSE.banking.accountService.exception.AccountNotFoundException;
 import com.javasSE.banking.accountService.exception.TransactionUnsuccessfulException;
 import com.javasSE.banking.accountService.model.Account;
+import com.javasSE.banking.accountService.model.Amount;
 import com.javasSE.banking.clientService.clientException.ClientNotFoundException;
 import com.javasSE.banking.common.model.DocFile;
 import com.javasSE.banking.common.model.FileType;
@@ -26,9 +28,8 @@ public interface IAccountFacade {
     void saveOnExit();
     void saveAccountData(DocFile file);
     void loadAccountData(FileType type);
-    void deposit(int accountId, BigDecimal amount) throws AccountNotFoundException;
-    void withdraw(int accountId , BigDecimal amount) throws AccountNotFoundException, ValidationException;
-    void transfer(int sourceAccountId , int desAccountId, BigDecimal amount) throws AccountNotFoundException, ValidationException, TransactionUnsuccessfulException;
-
+    void deposit(int accountId, AmountDto amountToDeposit) throws AccountNotFoundException;
+    void withdraw(int accountId , AmountDto amountToWithdraw) throws AccountNotFoundException, ValidationException;
+    void transfer(int sourceAccountId , int desAccountId, AmountDto amountToTransfer) throws AccountNotFoundException, ValidationException, TransactionUnsuccessfulException;
 
 }

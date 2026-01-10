@@ -12,8 +12,7 @@ import java.util.Currency;
 @NoArgsConstructor
 public class AccountDto {
     private String name;
-    private Currency currency;
-    private BigDecimal balance;
+    private AmountDto balance;
     private Integer clientId;
 
 

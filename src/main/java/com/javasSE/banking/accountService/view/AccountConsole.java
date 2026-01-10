@@ -1,6 +1,7 @@
 package com.javasSE.banking.accountService.view;
 
 import com.javasSE.banking.accountService.dto.AccountDto;
+import com.javasSE.banking.accountService.dto.AmountDto;
 import com.javasSE.banking.accountService.exception.AccountNotFoundException;
 import com.javasSE.banking.accountService.exception.TransactionUnsuccessfulException;
 import com.javasSE.banking.common.exception.ValidationException;
@@ -67,15 +68,21 @@ public class AccountConsole extends BaseConsole {
                         throw new RuntimeException();
                     }
                 });
+
+        String name = scannerWrapper.getUserInput("enter account name: ", Function.identity());
+
+
         Currency accountCurrency = switch (currency) {
             case 'E' -> Currency.getInstance("EUR");
             case 'D' -> Currency.getInstance("USD");
             default -> throw new IllegalStateException("Unexpected value: " + currency);
         };
-        String name = scannerWrapper.getUserInput("enter account name: ", Function.identity());
+
         BigDecimal balance = scannerWrapper.getUserInput("Enter balance: ", BigDecimal::new);
+        AmountDto amountDto = new AmountDto(accountCurrency , balance);
+
         int clientId = scannerWrapper.getUserInput("Enter client id: ", Integer::valueOf); //TODO: manage existence of client in DB. if there is no client with that id already registered, you should provoke the client system first.
-        newAccount = new AccountDto(name, accountCurrency, balance, clientId);
+        newAccount = new AccountDto(name, amountDto, clientId);
         System.out.println("accountDto received from user: " + newAccount.toString());
         return newAccount;
     }
@@ -120,25 +127,33 @@ public class AccountConsole extends BaseConsole {
 
     public void deposit() throws AccountNotFoundException {
         int accountId = scannerWrapper.getUserInput("Enter account Id: ", Integer::valueOf);
-        BigDecimal amount = scannerWrapper.getUserInput("Enter the amount to deposit: ", BigDecimal::new);
-        accountFacade.deposit(accountId, amount);
+        Currency currency = getAccountCurrency(accountId);
+        BigDecimal amountToDeposit = scannerWrapper.getUserInput("Enter the amount to deposit: ", BigDecimal::new);
+        accountFacade.deposit(accountId, new AmountDto(currency , amountToDeposit));
     }
 
     public void withdraw() throws ValidationException, AccountNotFoundException {
         int accountId = scannerWrapper.getUserInput("Enter account Id: ", Integer::valueOf);
-        BigDecimal amount = scannerWrapper.getUserInput("Enter the amount to deposit: ", BigDecimal::new);
-        accountFacade.withdraw(accountId, amount);
+        BigDecimal amount = scannerWrapper.getUserInput("Enter the amount to withdraw: ", BigDecimal::new);
+        Currency currency = getAccountCurrency(accountId);
+        AmountDto amountToWithdraw = new AmountDto(currency , amount);
+        accountFacade.withdraw(accountId , amountToWithdraw);
     }
 
     public void transfer() throws ValidationException, AccountNotFoundException, TransactionUnsuccessfulException {
         try {
             int sourceAccountId = scannerWrapper.getUserInput("Enter the source account id: ", Integer::valueOf);
             int destinationAccountId = scannerWrapper.getUserInput("Enter the destination account id: ", Integer::valueOf);
-            BigDecimal amount = scannerWrapper.getUserInput("Enter the amount to deposit: ", BigDecimal::new);
-            accountFacade.transfer(sourceAccountId, destinationAccountId, amount);
+            BigDecimal amountToTransfer = scannerWrapper.getUserInput("Enter the amount to deposit: ", BigDecimal::new);
+            Currency sourceCurrency = getAccountCurrency(sourceAccountId);
+            accountFacade.transfer(sourceAccountId, destinationAccountId, new AmountDto(sourceCurrency , amountToTransfer));
         } catch (TransactionUnsuccessfulException | ValidationException | AccountNotFoundException exception) {
             throw new TransactionUnsuccessfulException("Transaction unsuccessful!");
         }
+    }
+
+    private Currency getAccountCurrency(int sourceAccountId) throws AccountNotFoundException {
+        return accountFacade.getAccountById(sourceAccountId).getBalance().getCurrency();
     }
 
 

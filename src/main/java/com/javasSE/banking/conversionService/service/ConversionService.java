@@ -1,5 +1,6 @@
 package com.javasSE.banking.conversionService.service;
 
+import com.javasSE.banking.accountService.model.Amount;
 import com.javasSE.banking.common.utility.IdGeneratorUtil;
 import com.javasSE.banking.conversionService.utility.ConversionRateCalculatorUtil;
 import com.javasSE.banking.conversionService.exception.ConversionNotSupportedException;
@@ -26,212 +27,13 @@ public class ConversionService {
         return INSTANCE;
     }
     public Transaction createTransaction(TransactionIdPair idPair , CurrencyPair currencyPair ,
-                                         BigDecimal amount) throws ConversionNotSupportedException {
+                                         Amount transactionAmount) throws ConversionNotSupportedException {
         Transaction transaction =
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 new Transaction(IdGeneratorUtil.generateUniqueTransactionId(), idPair,
                               new CurrencyPair(currencyPair.getSource() , currencyPair.getDestination()),
                               ConversionRateCalculatorUtil.pickConversionRate(currencyPair),
                               LocalDateTime.now(),
-                              amount);
+                              transactionAmount);
         return transaction;
     }
 
@@ -243,7 +45,7 @@ public class ConversionService {
         }else{
             throw new ConversionRateNotFoundException("Conversion service not available for the currency types");
         }
-        return transaction.getAmount()
+        return transaction.getAmount().getValue()
                 .multiply(rate);
     }
 

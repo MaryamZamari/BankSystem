@@ -4,6 +4,7 @@ import com.javasSE.banking.accountService.dto.AccountDto;
 import com.javasSE.banking.accountService.exception.AccountNotFoundException;
 import com.javasSE.banking.accountService.exception.DuplicateAccountException;
 import com.javasSE.banking.accountService.exception.EmptyAccountException;
+import com.javasSE.banking.accountService.model.Amount;
 import com.javasSE.banking.clientService.clientException.ClientNotFoundException;
 import com.javasSE.banking.common.model.DocFile;
 import com.javasSE.banking.accountService.model.Account;
@@ -25,7 +26,7 @@ public interface IAccountService {
     void addData(String name) throws FileException, FileNotFoundException;
     void loadData(DocFile file) throws FileNotFoundException;
     List<Account> getAccountByClientId(Integer id) ;
-    void deposit(int accountId, BigDecimal amount) throws AccountNotFoundException;
-    void withdraw(int accountId, BigDecimal amount) throws AccountNotFoundException, ValidationException;
-    void transfer(int sourceAccountId, int desAccountId, BigDecimal amount) throws AccountNotFoundException, ValidationException;
+    void deposit(int accountId, Amount amount) throws AccountNotFoundException;
+    void withdraw(int accountId, Amount amount) throws AccountNotFoundException, ValidationException;
+    void transfer(int sourceAccountId, int desAccountId, Amount amount) throws AccountNotFoundException, ValidationException;
 }

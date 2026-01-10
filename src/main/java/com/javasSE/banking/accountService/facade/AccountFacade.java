@@ -1,9 +1,11 @@
 package com.javasSE.banking.accountService.facade;
 
 import com.javasSE.banking.accountService.dto.AccountDto;
+import com.javasSE.banking.accountService.dto.AmountDto;
 import com.javasSE.banking.accountService.exception.AccountNotFoundException;
 import com.javasSE.banking.accountService.exception.TransactionUnsuccessfulException;
 import com.javasSE.banking.accountService.mapper.IAccountMapStruct;
+import com.javasSE.banking.accountService.mapper.IAmountMapStruct;
 import com.javasSE.banking.accountService.validation.AccountValidationContext;
 import com.javasSE.banking.clientService.clientException.ClientNotFoundException;
 import com.javasSE.banking.common.model.DocFile;
@@ -18,7 +20,7 @@ import com.javasSE.banking.clientService.service.ClientService;
 import com.javasSE.banking.clientService.service.IClientService;
 import com.javasSE.banking.common.exception.ValidationException;
 import org.mapstruct.factory.Mappers;
-import java.math.BigDecimal;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,11 +29,13 @@ public class AccountFacade implements IAccountFacade {
     private final IClientService clientService;
     private final AccountValidationContext accountValidation;
     private static final AccountFacade INSTANCE;
-    private IAccountMapStruct mapStruct;
+    private IAccountMapStruct accountMapStruct;
+    private IAmountMapStruct amountMapStruct;
+
     private AccountFacade(){
         clientService = ClientService.getInstance();
         accountService= AccountService.getInstance();
-        mapStruct= Mappers.getMapper(IAccountMapStruct.class);
+        accountMapStruct = Mappers.getMapper(IAccountMapStruct.class);
         accountValidation= new AccountValidationContext();
     }
     static{
@@ -42,19 +46,19 @@ public class AccountFacade implements IAccountFacade {
     }
     @Override
     public void addAccount(AccountDto accountDto) throws DuplicateAccountException, ClientNotFoundException {
-        accountService.addAccount(mapStruct.mapToAccount(accountDto));
+        accountService.addAccount(accountMapStruct.mapToAccount(accountDto));
     }
 
     @Override
     public AccountDto getAccountById(int id) throws AccountNotFoundException {
-        return mapStruct.mapToAccountDto(accountService.getAccountById(id));
+        return accountMapStruct.mapToAccountDto(accountService.getAccountById(id));
     }
 
     @Override
     public Account updateAccount(int accountId , AccountDto accountDto) throws AccountNotFoundException, ValidationException {
         accountValidation.validate(accountDto);
         Account account= accountService.getAccountById(accountId);
-        mapStruct.mapToAccountForUpdate(accountDto, account);
+        accountMapStruct.mapToAccountForUpdate(accountDto, account);
         return account;
     }
 
@@ -65,12 +69,12 @@ public class AccountFacade implements IAccountFacade {
 
     @Override
     public List<AccountDto> getAllActiveAccounts() throws EmptyAccountException {
-        return mapStruct.mapToAccountDtoList(accountService.getAllActiveAccounts());
+        return accountMapStruct.mapToAccountDtoList(accountService.getAllActiveAccounts());
     }
 
     @Override
     public List<AccountDto> getAllDeletedAccounts() throws EmptyAccountException {
-        return mapStruct.mapToAccountDtoList(accountService.getAllDeletedAccounts());
+        return accountMapStruct.mapToAccountDtoList(accountService.getAllDeletedAccounts());
     }
 
     @Override
@@ -99,22 +103,22 @@ public class AccountFacade implements IAccountFacade {
         for (Client client : clients) {
             accountList = accountService.getAccountByClientId(client.getId());
         }
-        return mapStruct.mapToAccountDtoList(accountList);
+        return accountMapStruct.mapToAccountDtoList(accountList);
     }
     @Override
-    public void deposit(int accountId , BigDecimal amount) throws AccountNotFoundException{
-        accountService.deposit(accountId , amount);
-    }
-
-    @Override
-    public void withdraw(int accountId , BigDecimal amount) throws AccountNotFoundException, ValidationException {
-        accountService.withdraw(accountId , amount);
+    public void deposit(int accountId , AmountDto amountDto) throws AccountNotFoundException{
+        accountService.deposit(accountId , amountMapStruct.mapToAmount(amountDto));
     }
 
     @Override
-    public void transfer(int sourceAccountId, int desAccountId, BigDecimal amount) throws AccountNotFoundException, ValidationException, TransactionUnsuccessfulException {
+    public void withdraw(int accountId , AmountDto amountDto) throws AccountNotFoundException, ValidationException {
+        accountService.withdraw(accountId , amountMapStruct.mapToAmount(amountDto));
+    }
+
+    @Override
+    public void transfer(int sourceAccountId, int desAccountId, AmountDto amountDto) throws AccountNotFoundException, ValidationException, TransactionUnsuccessfulException {
         try{
-            accountService.transfer(sourceAccountId, desAccountId, amount);
+            accountService.transfer(sourceAccountId, desAccountId, amountMapStruct.mapToAmount(amountDto));
         }catch(Exception exception){
             throw new TransactionUnsuccessfulException();
         }
