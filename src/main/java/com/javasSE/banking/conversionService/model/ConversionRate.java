@@ -9,6 +9,7 @@ public enum ConversionRate {
     GBP_TO_USD(new BigDecimal("1.38")),
     USD_TO_GBP(new BigDecimal("0.79"));
     private final BigDecimal rate;
+
     ConversionRate(BigDecimal rate) {
         this.rate= rate;
     }

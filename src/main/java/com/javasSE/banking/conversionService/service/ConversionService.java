@@ -8,6 +8,7 @@ import com.javasSE.banking.conversionService.exception.ConversionRateNotFoundExc
 import com.javasSE.banking.conversionService.model.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class ConversionService {
     private static final ConversionService INSTANCE;
@@ -26,6 +27,7 @@ public class ConversionService {
     public static ConversionService getInstance(){
         return INSTANCE;
     }
+
     public Transaction createTransaction(TransactionIdPair idPair , CurrencyPair currencyPair ,
                                          Amount transactionAmount) throws ConversionNotSupportedException {
         Transaction transaction =
@@ -37,8 +39,8 @@ public class ConversionService {
         return transaction;
     }
 
-    public BigDecimal convert(Transaction transaction) throws ConversionRateNotFoundException {
-        ConversionRate conversionRate= transaction.getConversionRate();
+    public BigDecimal convert(Transaction transaction) throws ConversionRateNotFoundException, ConversionNotSupportedException {
+        ConversionRate conversionRate = ConversionRateCalculatorUtil.pickConversionRate(transaction.getCurrencyPair());
         BigDecimal rate = null;
         if(conversionRate != null){
             rate = conversionRate.getRate();

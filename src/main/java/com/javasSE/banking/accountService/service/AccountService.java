@@ -21,11 +21,9 @@ import com.javasSE.banking.common.exception.FileException;
 import com.javasSE.banking.common.exception.ValidationException;
 import java.io.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Currency;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 public class AccountService implements IAccountService{
@@ -35,7 +33,7 @@ public class AccountService implements IAccountService{
     private final ObjectMapper objectMapper;
     private final AmountUtil amountUtil;
     private static List<Account> accountList;
-
+    private Map<Integer , Lock> locks = new HashMap<>(); //to handle concurrency java 5
 
     private AccountService(){
         accountList= new ArrayList<>();
@@ -49,6 +47,11 @@ public class AccountService implements IAccountService{
     }
     public static AccountService getInstance(){
         return INSTANCE;
+    }
+
+    private Lock getLock(int accountId){
+        locks.putIfAbsent(accountId , new ReentrantLock());
+        return locks.get(accountId);
     }
 
     @Override
@@ -107,9 +110,11 @@ public class AccountService implements IAccountService{
 
     @Override
     public void deposit(int accountId, Amount amountToDeposit) throws AccountNotFoundException {
+        Account account = getAccountById(accountId);
         Lock lock = getLock(accountId);
+        lock.lock();
+        //synchronized (account){  --> to handle concurrency problem
         try{
-            Account account = getAccountById(accountId);
             Amount currentBalance = new Amount(account.getBalance().getCurrency() , account.getBalance().getValue());
             Amount newBalance = AmountUtil.add(currentBalance , amountToDeposit);
             account.setBalance(newBalance);
@@ -118,21 +123,31 @@ public class AccountService implements IAccountService{
         }finally{
             lock.unlock();
         }
+           // }
+            }
 
-    }
+
 
     @Override
     public void withdraw(int accountId, Amount amountToWithdraw) throws AccountNotFoundException , ValidationException {
         Account account = getAccountById(accountId);
-        Amount currentBalance = new Amount(account.getBalance().getCurrency() , account.getBalance().getValue();
-        boolean hasBalance = hasEnoughBalance(amountToWithdraw , currentBalance);
-        Amount newBalance;
-        if(hasBalance){
-            newBalance = AmountUtil.subtract(currentBalance , amountToWithdraw);
-            System.out.println("you withdrawed " + amountToWithdraw + " " + amountToWithdraw.getCurrency() + ". \n" +
-                                "new balance is: " + newBalance);
-        }else{
-            throw new ValidationException("Balance is not enough! try to withdraw less amount. ");
+        Lock lock = getLock(accountId);
+        lock.lock();
+        //synchronized (account){
+        try{
+            Amount currentBalance = new Amount(account.getBalance().getCurrency() , account.getBalance().getValue());
+            boolean hasBalance = hasEnoughBalance(amountToWithdraw , currentBalance);
+            if(hasBalance){
+                Amount newBalance = AmountUtil.subtract(currentBalance , amountToWithdraw);
+                System.out.println("you withdrawed " + amountToWithdraw + " " + amountToWithdraw.getCurrency() + ". \n" +
+                        "new balance is: " + newBalance);
+                lock.unlock();
+            }else{
+                throw new ValidationException("Balance is not enough! try to withdraw less amount. ");
+        }
+
+        }finally {
+            lock.unlock(); //to avoid deadlock if the program crashes in the middle of the operation
         }
     }
 
@@ -141,13 +156,27 @@ public class AccountService implements IAccountService{
     }
 
     @Override
-    public void transfer(int sourceAccountId, int desAccountId, Amount amountToTransfer) throws AccountNotFoundException, ValidationException {
+    public void transfer(int sourceAccountId, int destAccountId, Amount amountToTransfer) throws AccountNotFoundException, ValidationException {
+        Account sourceAccount = getAccountById(sourceAccountId); //TODO: review this method and fix
+        Account destAccount = getAccountById(destAccountId);
+        //solving deadlock problem : locking in order of the id
+            //Account firstAccountLock = sourceAccountId < destAccountId ? sourceAccount : destAccount;
+            //Account secondAccountLock = sourceAccountId < destAccountId ? destAccount : sourceAccount;
+        Lock sourceLock = getLock(sourceAccountId);
+        Lock destLock = getLock(destAccountId);
+
+        Lock firstAccountLock = sourceAccountId < destAccountId ? sourceLock : destLock;
+        Lock secondAccountLock = sourceAccountId < destAccountId ? destLock : sourceLock;
+
+        firstAccountLock.lock();
+        secondAccountLock.lock();
+
+            //synchronized (firstAccountLock){
+               // synchronized (secondAccountLock){
         try {
-            Account sourceAccount = getAccountById(sourceAccountId);
-            Account destAccount = getAccountById(desAccountId);
             Currency sourceType = sourceAccount.getBalance().getCurrency();
             Currency destType = destAccount.getBalance().getCurrency();
-            TransactionIdPair idPair = new TransactionIdPair(sourceAccountId , desAccountId);
+            TransactionIdPair idPair = new TransactionIdPair(sourceAccountId , destAccountId);
             CurrencyPair currencyPair = new CurrencyPair(
                     CurrencyType.valueOf(sourceType.getCurrencyCode()) ,
                     CurrencyType.valueOf(destType.getCurrencyCode())
@@ -155,28 +184,29 @@ public class AccountService implements IAccountService{
             Transaction transaction = conversionService.createTransaction(idPair , currencyPair , amountToTransfer);
             transactionLogger.logTransaction(transaction);
             if(!sourceType.equals(destType)){
-                System.out.println("This operation needs Currency Conversion and will cost some service fee");
-                ConversionRate rate = ConversionRateCalculatorUtil.pickConversionRate(currencyPair);
-                conversionService.convert(transaction);
+                System.out.println("This operation needs Currency Conversion and will cost some service fee /n");
+                BigDecimal convertedAmount = conversionService.convert(transaction);
+                System.out.println("the converted amount is : " + convertedAmount + " " + destType.getDisplayName() + "/n");
             }
 
             Amount sourceBalance = new Amount(getAccountById(sourceAccountId).getBalance().getCurrency() , sourceAccount.getBalance().getValue());
             boolean hasBalance = hasEnoughBalance(sourceBalance, amountToTransfer);
             if (hasBalance) {
                 AmountUtil.subtract(sourceBalance , amountToTransfer);
-                AmountUtil.add(sourceBalance , amountToTransfer);
+                AmountUtil.add(getAccountById(sourceAccountId).getBalance() , amountToTransfer);
             } else {
                 throw new ValidationException("Balance in the source account is not enough");
             }
         }catch (ConversionNotSupportedException e) {
             throw new RuntimeException("Conversion is not possible for the currencies");
-        }catch(Exception e){
-        } catch (ConversionRateNotFoundException e) {
+        }catch (ConversionRateNotFoundException e) {
             throw new RuntimeException(e);
+        }finally{
+            firstAccountLock.unlock();
+            secondAccountLock.unlock();
         }
-
-
     }
+
 
     // =========== Data and file related functions
     @Override
@@ -258,9 +288,7 @@ public class AccountService implements IAccountService{
             accountList = (List<Account>) objectInputStream.readObject();
         } catch (FileNotFoundException exception){
             throw new FileNotFoundException();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

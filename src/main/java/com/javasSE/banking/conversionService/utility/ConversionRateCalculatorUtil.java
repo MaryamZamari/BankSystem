@@ -8,6 +8,7 @@ import java.util.Map;
 
 public class ConversionRateCalculatorUtil {
     private static final Map<CurrencyPair, ConversionRate> conversionRateMap = new HashMap<>();
+
     public static void addConversionRate(CurrencyPair pair , ConversionRate rate){
         conversionRateMap.put(pair , conversionRateMap.getOrDefault(pair , rate));
     }
